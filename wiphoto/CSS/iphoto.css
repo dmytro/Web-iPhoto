@@ -7,6 +7,8 @@ a {
 }
 
 #navigation {
+ font-family: Arial, Helvetica, Lucida, sans-serif;
+ color: #183C88;
  position: fixed;
  left: 0;
  top: 0;
@@ -17,12 +19,18 @@ a {
  height: 100%;
  overflow: auto;
 }
+
+#navigation .header {
+    font-size: 8pt;
+    font-style: bold;
+    text-indent: .75em;
+    padding-top: 2ex;
+    text-shadow: 1px 2px #eee;
+}
 #navigation a {
  display: block;
  min-height: 12pt;
- color: #183C88;
  text-decoration: none;
- font-family: Arial, Helvetica, Lucida, sans-serif;
  font-size: 8pt;
  text-indent: 1.5em;
 }
@@ -34,6 +42,7 @@ a {
  padding-top: 2;
  padding-bottom: 2;
  font-style: bold;
+ text-shadow: 2px 1px #000;
 }
 
 #viewPanel {

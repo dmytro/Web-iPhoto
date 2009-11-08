@@ -92,11 +92,20 @@ template = {
     function next () {
         //current['photo'][0] - album index
         //current['photo'][1] - photo index in album
+        if (current['mode'] == 'thumbs') { 
+            showPhoto(current['album'],0)
+            return (true)
+        } 
         nextIdx = (current['photo'][1] == albums[current['photo'][0]]['photos'].length-1) ? 0 : current['photo'][1]+1
-        showPhoto (current['photo'][0], nextIdx)
+        showPhoto (current['album'], nextIdx)
+
     }
 
     function prev () {
+        if (current['mode'] == 'thumbs') { 
+            showPhoto(current['album'],albums[current['album']]['photos'].length-1)
+            return(true)
+        }
         nextIdx = (current['photo'][1] == 0) ? albums[current['photo'][0]]['photos'].length-1 : current['photo'][1]-1
         showPhoto (current['photo'][0], nextIdx)
     }
@@ -116,9 +125,9 @@ template = {
         case 'thumbs':
             album = current['album']
             switch(KeyID) {
-            case 39: showPhoto(album,0); break;
-            case 37: showPhoto(album,albums[album]['photos'].length-1); break;
-            case 32: showPhoto(album,0); break;
+            case 39: next (); break;
+            case 37: prev(); break;
+            case 32: next(); break;
             case 27: populateAlbums(); break;
             }
             break
