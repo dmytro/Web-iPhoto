@@ -1,0 +1,20 @@
+#--
+albums:
+   names: SELECT primaryKey, Name FROM SqAlbum WHERE ClassName= 'Album' AND albumGroup = 8192
+
+# primaryKey is from names: SQL
+   photos: "SELECT sqPhotoInfo FROM AlbumsPhotosJoin where sqAlbum = #{primaryKey} ORDER BY photosOrder"
+
+photos:
+#  photoKeys is result of albums SQL above
+# SqFileImage: photoKey,imageType -> primaryKey
+# imageType 6 -> orig , 7 -> arch , 5-> thumb
+   thumb: "SELECT primaryKey FROM SqFileImage WHERE imageType = 5 AND photoKey = #{photoKey}"
+   image: "SELECT primaryKey FROM SqFileImage WHERE imageType = 6 AND photoKey = #{photoKey}"
+
+# tpl below uses one of the 2 above
+   path: "SELECT relativePath FROM SqFileInfo WHERE primaryKey in (#{select})"
+   dimensions: "SELECT imageWidth, imageHeight FROM SqFileImage WHERE primaryKey in (#{select})"
+
+
+   
