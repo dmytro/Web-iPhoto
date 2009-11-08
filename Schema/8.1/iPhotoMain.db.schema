@@ -1,0 +1,130 @@
+
+ CREATE TABLE AlbumsPhotosJoin (sqAlbum INT, sqPhotoInfo INT, photosOrder INT);
+
+ CREATE TABLE GpsTracksEventsJoin (sqGpsTrack INT, sqEvent INT);
+
+ CREATE TABLE KeywordsPhotosJoin (sqKeyword INT, sqPhotoInfo INT);
+
+ CREATE TABLE MasterSchema (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT, version INT, theSchema BLOB);
+
+ CREATE TABLE SqAlbum (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT, className VARCHAR, name VARCHAR, uid VARCHAR, sortOrder INT, sortDirection INT, sortHonorRolls INT, visible INT, lastScrollFloat REAL, lastScrollLong INT, albumGroup INT, photocastURL VARCHAR, yearHeaders BLOB, closedRolls BLOB, closedStacks BLOB, siblingOrder INT, parent INT, repAlbumKeyForLoading INT, attributes BLOB, largeIconImageName VARCHAR, iconImageName VARCHAR, showingChildren INT);
+
+ CREATE TABLE SqBookAlbum (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT, bookProductType INT, onePhotoPerPage INT, photosAdded INT, bookShowUpgraded INT, bookAlbumVersion INT);
+
+ CREATE TABLE SqEvent (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT, keyPhotoKey INT, name VARCHAR, comment VARCHAR, rollDate REAL, rollDirectories BLOB, rollID INT, currentPhotoKey INT, displayOrder INT, emptyRoll INT, uid VARCHAR, locationStreet VARCHAR, locationCity VARCHAR, locationCounty VARCHAR, locationState VARCHAR, locationPostalCode VARCHAR, locationCountry VARCHAR, locationLatitude REAL, locationLongitude REAL, locationRadius REAL, locationKey INT, manualLocation INT, ocean INT, country INT, province INT, county INT, city INT, neighborhood INT, aoi INT, poi INT, namedPlace INT, attributes BLOB);
+
+ CREATE TABLE SqFileImage (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT, photoKey INT, imageType INT, version INT, imageWidth REAL, imageHeight REAL, rotation REAL, rasterToDisplayRotation REAL, currentToOriginalRotation REAL, fileSize INT, sqFileInfo INT);
+
+ CREATE TABLE SqFileInfo (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT, format INT, relativePath VARCHAR, aliasPath VARCHAR);
+
+ CREATE TABLE SqFilterAlbum (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT, matchAllFilters INT, activeFilterBar INT, keepRollsTogether INT, coreName VARCHAR, filterArrayData BLOB);
+
+ CREATE TABLE SqGlobals (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT, currentVersion INT, uid VARCHAR, metaData BLOB, nextKey INT, nextRollID INT, lastImportRollKey INT, lastEmptyEventKey INT, latestEventUpdateEnabled INT, rollKeysUpdated INT, rollKeysFixed INT, photocastNotified INT, modificationDate REAL, lastAlbum INT, lastDetailKey INT, thumbnailVersion INT, backupComplete INT, schemaNeedsBackup INT, globalsNeedBackup INT, keywordsNeedBackup INT, albumsNeedingBackup BLOB, photosNeedingBackup BLOB, eventsNeedingBackup BLOB, placesNeedingBackup BLOB, userPlacesNeedingBackup BLOB, gpsTracksNeedingBackup BLOB, lastViewerType INT, eventSortOrder INT, eventSortDirection INT, eventSortHonorRolls INT, eventLastScrollFloat REAL, eventLastScrollLong INT, monthsLastScrollFloat REAL, monthsLastScrollLong INT, stackData BLOB, peopleSortOrder INT, peopleSortDirection INT);
+
+ CREATE TABLE SqGpsTrack (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR);
+
+ CREATE TABLE SqKeyword (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR, shortcut VARCHAR);
+
+ CREATE TABLE SqPhotoInfo (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT, photoDate REAL, isVisible INT, showInLibrary INT, isUserHidden INT, isOpen INT, caption VARCHAR, comments VARCHAR, uid VARCHAR, ranking INT, readOnly INT, faceDetectionFromCached INT, faceDetectionRotationFromOriginal REAL, editState INT, thumbnailVersion INT, thumbCacheIndex INT, metaModDate REAL, modificationDate REAL, archiveFilename VARCHAR, cameraModel VARCHAR, isoSpeedRating INT, flash INT, shutterSpeed REAL, aperture REAL, focalLength REAL, needsLocationLookup INT, locationCountry VARCHAR, locationState VARCHAR, locationCounty VARCHAR, locationCity VARCHAR, locationPostalCode VARCHAR, locationStreet VARCHAR, gpsLatitude REAL, gpsLongitude REAL, manualLocation INT, ocean INT, country INT, province INT, county INT, city INT, neighborhood INT, aoi INT, poi INT, namedPlace INT, originalEvent INT, event INT);
+
+ CREATE TABLE SqPlace (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT, defaultName INT, recordLocator INT, type INT, subtype INT, latitude REAL, longitude REAL, version REAL, parent INT, canCache INT);
+
+ CREATE TABLE SqPlaceName (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT, place INT, language VARCHAR, string VARCHAR);
+
+ CREATE TABLE SqPrintAlbum (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT, photoLayoutPref INT, contactSheetColumns INT, paperSizeWidth REAL, paperSizeHeight REAL, photoRectX REAL, photoRectY REAL, photoRectWidth REAL, photoRectHeight REAL, printerName VARCHAR, paperID VARCHAR, presetID VARCHAR);
+
+ CREATE TABLE SqPublishedAlbum (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT, publishServiceKey VARCHAR, persistentAlbumData BLOB, persistentPhotoData BLOB, publishedURL VARCHAR, publishedName VARCHAR, publishSize INT, autoPublish INT, publishUsername VARCHAR, publishPassword VARCHAR, pendingPublish BLOB, pendingUnpublish BLOB, rollKey INT, keyPhotoUID VARCHAR, publishShowCaptions INT, publishShowDownloadLink INT, publishAllowContributions INT, publishAllowComments INT, publishAllowMobile INT, publishAllowAlbumWidget INT, publishShowEmailToVisitors INT, publishShowAlbum INT, publishShowSettings INT, isLive INT, lastSyncDate BLOB, serviceUsername VARCHAR, expectedSyncCount INT, publishedSettings BLOB);
+
+ CREATE TABLE SqSlideshowAlbum (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT);
+
+ CREATE TABLE SqSubscribedAlbum (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT, subscriptionURL VARCHAR, urlValid INT);
+
+ CREATE TABLE SqUserPlace (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR, description VARCHAR, latitude REAL, longitude REAL, radius REAL, ocean INT, country INT, province INT, county INT, city INT, neighborhood INT, aoi INT, poi INT);
+
+ CREATE INDEX AlbumsPhotosIndexOrder on AlbumsPhotosJoin (sqAlbum,photosOrder);
+
+ CREATE INDEX AlbumsPhotosIndexSqAlbum on AlbumsPhotosJoin (sqAlbum,sqPhotoInfo,photosOrder);
+
+ CREATE INDEX AlbumsPhotosIndexSqPhotoInfo on AlbumsPhotosJoin (sqPhotoInfo,sqAlbum);
+
+ CREATE INDEX GpsTracksEventsIndexSqEvent on GpsTracksEventsJoin (sqEvent,sqGpsTrack);
+
+ CREATE INDEX GpsTracksEventsIndexSqGpsTrack on GpsTracksEventsJoin (sqGpsTrack,sqEvent);
+
+ CREATE INDEX KeywordsPhotosIndexSqKeyword on KeywordsPhotosJoin (sqKeyword,sqPhotoInfo);
+
+ CREATE INDEX KeywordsPhotosIndexSqPhotoInfo on KeywordsPhotosJoin (sqPhotoInfo,sqKeyword);
+
+ CREATE INDEX SqAlbumIndexAlbumGroup on SqAlbum (albumGroup);
+
+ CREATE INDEX SqAlbumIndexParent on SqAlbum (parent);
+
+ CREATE INDEX SqAlbumIndexUid on SqAlbum (uid);
+
+ CREATE INDEX SqEventIndexAoi on SqEvent (aoi);
+
+ CREATE INDEX SqEventIndexCity on SqEvent (city);
+
+ CREATE INDEX SqEventIndexCountry on SqEvent (country);
+
+ CREATE INDEX SqEventIndexCounty on SqEvent (county);
+
+ CREATE INDEX SqEventIndexNamedPlace on SqEvent (namedPlace);
+
+ CREATE INDEX SqEventIndexNeighborhood on SqEvent (neighborhood);
+
+ CREATE INDEX SqEventIndexOcean on SqEvent (ocean);
+
+ CREATE INDEX SqEventIndexPoi on SqEvent (poi);
+
+ CREATE INDEX SqEventIndexProvince on SqEvent (province);
+
+ CREATE INDEX SqFileImageIndexImageType on SqFileImage (imageType);
+
+ CREATE INDEX SqFileImageIndexPhotoKey on SqFileImage (photoKey);
+
+ CREATE INDEX SqFileImageIndexSqFileInfo on SqFileImage (sqFileInfo);
+
+ CREATE INDEX SqKeywordIndexShortcut on SqKeyword (shortcut);
+
+ CREATE INDEX SqKeywordIndexTitle on SqKeyword (title);
+
+ CREATE INDEX SqPhotoInfoIndexAoi on SqPhotoInfo (aoi);
+
+ CREATE INDEX SqPhotoInfoIndexCity on SqPhotoInfo (city);
+
+ CREATE INDEX SqPhotoInfoIndexCountry on SqPhotoInfo (country);
+
+ CREATE INDEX SqPhotoInfoIndexCounty on SqPhotoInfo (county);
+
+ CREATE INDEX SqPhotoInfoIndexEvent on SqPhotoInfo (event);
+
+ CREATE INDEX SqPhotoInfoIndexNamedPlace on SqPhotoInfo (namedPlace);
+
+ CREATE INDEX SqPhotoInfoIndexNeighborhood on SqPhotoInfo (neighborhood);
+
+ CREATE INDEX SqPhotoInfoIndexOcean on SqPhotoInfo (ocean);
+
+ CREATE INDEX SqPhotoInfoIndexPoi on SqPhotoInfo (poi);
+
+ CREATE INDEX SqPhotoInfoIndexProvince on SqPhotoInfo (province);
+
+ CREATE INDEX SqPlaceIndexParent on SqPlace (parent);
+
+ CREATE INDEX SqPlaceNameIndexPlace on SqPlaceName (place);
+
+ CREATE INDEX SqUserPlaceIndexAoi on SqUserPlace (aoi);
+
+ CREATE INDEX SqUserPlaceIndexCity on SqUserPlace (city);
+
+ CREATE INDEX SqUserPlaceIndexCountry on SqUserPlace (country);
+
+ CREATE INDEX SqUserPlaceIndexCounty on SqUserPlace (county);
+
+ CREATE INDEX SqUserPlaceIndexNeighborhood on SqUserPlace (neighborhood);
+
+ CREATE INDEX SqUserPlaceIndexOcean on SqUserPlace (ocean);
+
+ CREATE INDEX SqUserPlaceIndexPoi on SqUserPlace (poi);
+
+ CREATE INDEX SqUserPlaceIndexProvince on SqUserPlace (province);

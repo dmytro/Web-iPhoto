@@ -1,0 +1,22 @@
+<html><head>
+<TITLE> Web iPhoto</TITLE>
+<SCRIPT type="text/javascript" src="js/functions.js"></SCRIPT>
+<SCRIPT type="text/javascript" src="js/template.js"></SCRIPT>
+<SCRIPT type="text/javascript" src="js/albums.js"></SCRIPT>
+<SCRIPT type="text/javascript" src="js/photos.js"></SCRIPT>
+<LINK   rel="stylesheet" type="text/css" href="css/iphoto.css" />
+</head><body onLoad="populateAlbums();">
+<div id="navigation">
+	<div id="albumdata"></div>
+</div>
+<div id="viewPanel"></div>
+<div id="toolpanel">
+	<div class="tools" id="play">
+		<a href="javascript:play();">&nbsp;&nbsp;<img src="images/play-N.png" border=0><br>Slideshow</a>
+	</div>
+	<div class="tools" id="prevnext">
+		<a href="javascript:prev()"><img style="border-right: 1px solid #aaa" src="images/prev-N.png"></a><a 
+		   href="javascript:next()"><img src="images/next-N.png"></a>
+	</div>
+</div>
+</body></html>

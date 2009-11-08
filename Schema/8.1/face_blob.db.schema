@@ -1,0 +1,4 @@
+CREATE TABLE detected_face_blob (image_key int, face_index int, recogBuffer blob, histogram64Buffer blob);
+CREATE TABLE face_name_blob (face_key integer, attrs blob);
+CREATE INDEX detected_face_index_a1 ON detected_face_blob(image_key, face_index);
+CREATE INDEX face_name_index_a1 ON face_name_blob(face_key);
