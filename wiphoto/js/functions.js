@@ -2,13 +2,20 @@
 photo = [];
 screen = [];
 
-key = {'left':37,'up': 38,'right': 39,'down': 40,'escape':27,'tab':9,'enter':13,'space':32};
+keyCode = {37:'left',38:'up',39:'right',40:'down',27:'escape',9:'tab',13:'enter',32:'space'};
 defaults = { 'navigation_width': 200, 'thumb_size': 120 };
 template = {
-    'albumLink':'<A ID="showThumbs_${album}" CLASS="albumLink" HREF="JAVASCRIPT:showThumbs(${album});">${albums[album]["name"]}</A>',
-    'albumThumb':'<A HREF="JAVASCRIPT:showThumbs(${album});"><SPAN ID="albumThumb_${album}" CLASS="albumThumb"><IMG WIDTH="${dim[0]}" HEIGHT="${dim[1]}" SRC="${photos[albums[album]["photos"][0]]["thumb"]["path"]}"><DIV STYLE="WIDTH: ${current["thumb_size"]+10}">${albums[album]["name"]} (${albums[album]["photos"].length})</DIV></SPAN></A>',
-    'thumb':'<A HREF="JAVASCRIPT:showPhoto(${album},${i});"><IMG CLASS="thumb" WIDTH="${dim[0]}" HEIGHT="${dim[1]}" SRC="${photos[key]["thumb"]["path"]};"></A>',
-    'photo':'<CENTER><IMG WIDTH="${dim[0]}" HEIGHT="${dim[1]}" ID="showPhoto" SRC="${photos[key]["image"]["path"]}"></CENTER>'
+    'albumLink':
+    '<A ID="showThumbs_${album}" CLASS="albumLink" HREF="JAVASCRIPT:showThumbs(${album});">${albums[album]["name"]}</A>',
+
+    'albumThumb':
+    '<A HREF="JAVASCRIPT:showThumbs(${album});"><SPAN ID="albumThumb_${album}" CLASS="albumThumb"><IMG ID="albumThumb_img_${album}" WIDTH="${dim[0]}" HEIGHT="${dim[1]}" SRC="${photos[albums[album]["photos"][0]]["thumb"]["path"]}"><DIV STYLE="WIDTH: ${current["thumb_size"]+10}">${albums[album]["name"]} (${albums[album]["photos"].length})</DIV></SPAN></A>',
+
+    'thumb':
+    '<A HREF="JAVASCRIPT:showPhoto(${album},${i});"><IMG CLASS="thumb" WIDTH="${dim[0]}" HEIGHT="${dim[1]}" SRC="${photos[key]["thumb"]["path"]};"></A>',
+
+    'photo':
+    '<CENTER><IMG WIDTH="${dim[0]}" HEIGHT="${dim[1]}" ID="showPhoto" SRC="${photos[key]["image"]["path"]}"></CENTER>'
 };
     
     current = { 'photo':[], 'album': 0, 'mode':'',
@@ -110,25 +117,23 @@ template = {
         showPhoto (current['photo'][0], nextIdx)
     }
 
-//'left':37,'up': 38,'right': 39,'down': 40,'escape':27,'tab':9,'enter':13,'space':32};
     function KeyCheck (e) {
-        var KeyID = (window.event) ? event.keyCode : e.keyCode;
+        var KeyPress = (window.event) ? keyCode[event.keyCode] : keyCode[e.keyCode];
         switch (current['mode']) {
         case 'photo':
-            switch(KeyID) {
-            case 37: prev(); break;
-            case 39: next(); break;
-            case 32: next(); break;
-            case 27: showThumbs(current['album']); break;
+            switch(KeyPress) {
+            case 'left': prev(); break;
+            case 'right': next(); break;
+            case 'space': next(); break;
+            case 'escape': showThumbs(current['album']); break;
             }
             break
         case 'thumbs':
-            album = current['album']
-            switch(KeyID) {
-            case 39: next (); break;
-            case 37: prev(); break;
-            case 32: next(); break;
-            case 27: populateAlbums(); break;
+            switch(KeyPress) {
+            case 'right': next (); break;
+            case 'left': prev(); break;
+            case 'space': next(); break;
+            case 'escape': populateAlbums(); break;
             }
             break
         case 'albumThumbs':
