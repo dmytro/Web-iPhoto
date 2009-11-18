@@ -4,11 +4,11 @@ require 'sqlite3'
 require 'yaml'
 
 class WIPhoto
-  def initialize #iPhotoDir
-    #@db = SQLite3::Database.new File.join iPhotoDir, "iPhotoMain.db"	
-    @db = SQLite3::Database.new "/Users/dmytro/Pictures/iPhoto Library/iPhotoMain.db"
+  def initialize iPhotoDir
+    dbpath = File.join iPhotoDir, "iPhotoMain.db"
+    @db = SQLite3::Database.new dbpath rescue raise "Cannot open iPhoto database file #{dbpath}" 
     @db.type_translation = true
-    @config = YAML::load_file File.join( File.dirname( __FILE__), 'etc', 'config.yml')
+    @config = YAML::load_file File.join( File.dirname(__FILE__), 'config.yml')
     @albums = {} # 
     @photos = {} # { key: { path_to_image, path_to_thumb}}
   end

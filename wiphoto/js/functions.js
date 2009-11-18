@@ -34,7 +34,7 @@ template = {
     }
 
     // --------------------------------------------------------------------------------
-    function populateAlbums () {
+    function showAlbumThumbs () {
         current['mode'] = 'albumThumbs';
 	out = '';
         document.getElementById('viewPanel').innerHTML = '';
@@ -71,16 +71,8 @@ template = {
     // --------------------------------------------------------------------------------
     
     function fitInto (w,h,image) { // Container width and height, photo width and height
-	proportion = 1;
-        pw = image['dim'][0]; ph = image['dim'][1];
-	p1 = pw/w; p2 = ph/h;
-	if ( p1 > p2) { 
-	    proportion = p1 
-	} else {
-	    proportion = p2
-	}
-	dim = [ pw/proportion, ph/proportion];
-	return (dim);
+        proportion = Math.max(image['dim'][0]/w,image['dim'][1]/h);
+	return([image['dim'][0]/proportion, image['dim'][1]/proportion])
     }
     
     // --------------------------------------------------------------------------------
@@ -105,7 +97,6 @@ template = {
         } 
         nextIdx = (current['photo'][1] == albums[current['photo'][0]]['photos'].length-1) ? 0 : current['photo'][1]+1
         showPhoto (current['album'], nextIdx)
-
     }
 
     function prev () {
@@ -128,12 +119,18 @@ template = {
             case 'escape': showThumbs(current['album']); break;
             }
             break
+/*  TODO
+ In thumbs mode key should do this:
+ left/right - move selection back or forward,
+ enter,space - open photo
+ esc - go back to list of albums (album thumbs)
+*/
         case 'thumbs':
             switch(KeyPress) {
             case 'right': next (); break;
             case 'left': prev(); break;
             case 'space': next(); break;
-            case 'escape': populateAlbums(); break;
+            case 'escape': showAlbumThumbs(); break;
             }
             break
         case 'albumThumbs':
@@ -142,3 +139,8 @@ template = {
         return (true);
     }
     
+
+// --------------------------------------------------------------------------------
+    function init() {
+        showAlbumThumbs();
+    }

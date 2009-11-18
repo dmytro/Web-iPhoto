@@ -55,10 +55,6 @@ a {
  padding-left: 10px;
 }
 
-#viewPanel .selected {
- border: 5px solid #F7D457;
-}
-
 #viewPanel .thumb {
  margin: 5px;
  padding: 1px;
@@ -67,6 +63,15 @@ a {
  font-family: Arial, Helvetica, Lucida, sans-serif;
  font-size: 8pt;
 }
+
+#viewPanel .thumb.selected {
+    border: 5px solid #FFC500;
+    padding: 3px;
+    -moz-border-radius: 10px; 
+    -webkit-border-radius: 10px; 
+}
+
+
 #viewPanel .albumThumb {
  float: left;
  padding: 5px;
