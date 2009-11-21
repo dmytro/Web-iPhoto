@@ -58,13 +58,15 @@ a {
 #viewPanel .thumb {
  margin: 5px;
  padding: 1px;
- border-right: 3px solid #777;
- border-bottom: 3px solid #777;
+ border: 5px solid #fff;
+ border-right: 5px solid #777;
+ border-bottom: 5px solid #777;
  font-family: Arial, Helvetica, Lucida, sans-serif;
  font-size: 8pt;
 }
 
 #viewPanel .thumb.selected {
+    margin: 3px;
     border: 5px solid #FFC500;
     padding: 3px;
     -moz-border-radius: 10px; 

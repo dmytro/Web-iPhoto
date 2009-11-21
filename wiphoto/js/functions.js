@@ -6,21 +6,29 @@ keyCode = {37:'left',38:'up',39:'right',40:'down',27:'escape',9:'tab',13:'enter'
 defaults = { 'navigation_width': 200, 'thumb_size': 120 };
 template = {
     'albumLink':
-    '<A ID="showThumbs_${album}" CLASS="albumLink" HREF="JAVASCRIPT:showThumbs(${album});">${albums[album]["name"]}</A>',
-
+    '<A ID="showThumbs_${album}" CLASS="thumb" HREF="JAVASCRIPT:showThumbs(${album});">${albums[album]["name"]}</A>',
+// ----------------------------------------
     'albumThumb':
-    '<A HREF="JAVASCRIPT:showThumbs(${album});"><SPAN ID="albumThumb_${album}" CLASS="albumThumb"><IMG ID="albumThumb_img_${album}" WIDTH="${dim[0]}" HEIGHT="${dim[1]}" SRC="${photos[albums[album]["photos"][0]]["thumb"]["path"]}"><DIV STYLE="WIDTH: ${current["thumb_size"]+10}">${albums[album]["name"]} (${albums[album]["photos"].length})</DIV></SPAN></A>',
 
+    '<A HREF="JAVASCRIPT:showThumbs(${album});">\
+<SPAN ID="albumThumb_${album}" CLASS="albumThumb">\
+<IMG ID="albumThumb_img_${album}" WIDTH="${dim[0]}" HEIGHT="${dim[1]}" SRC="${photos[albums[album]["photos"][0]]["thumb"]["path"]}">\
+<DIV STYLE="WIDTH: ${current["thumb_size"]+10}">${albums[album]["name"]} (${albums[album]["photos"].length})\
+</DIV>\
+</SPAN>\
+</A>',
+    
+// ----------------------------------------
     'thumb':
-    '<A HREF="JAVASCRIPT:showPhoto(${album},${i});"><IMG CLASS="thumb" WIDTH="${dim[0]}" HEIGHT="${dim[1]}" SRC="${photos[key]["thumb"]["path"]};"></A>',
 
+    '<A HREF="JAVASCRIPT:showPhoto(${album},${i});"><IMG ID="thumb_${album}_${i}" CLASS="thumb" WIDTH="${dim[0]}" HEIGHT="${dim[1]}" SRC="${photos[key]["thumb"]["path"]};"></A>',
+// ----------------------------------------
     'photo':
     '<CENTER><IMG WIDTH="${dim[0]}" HEIGHT="${dim[1]}" ID="showPhoto" SRC="${photos[key]["image"]["path"]}"></CENTER>'
+// ----------------------------------------
 };
     
-    current = { 'photo':[], 'album': 0, 'mode':'',
-                thumb_size : defaults['thumb_size']
-              };
+    current = { 'photo':0, 'album': 0, 'mode':'',thumb_size : defaults['thumb_size']};
     document.onkeyup = KeyCheck;       
     // --------------------------------------------------------------------------------
     function getElementsByClassName(classname, node)  {
@@ -32,7 +40,16 @@ template = {
             if(re.test(els[i].className))a.push(els[i]);
         return a;
     }
-
+    function get1stElementByClassName(classname, node)  {
+        return (getElementsByClassName(classname, node)[0])
+    }
+    // --------------------------------------------------------------------------------
+    function setThumbSelection (album,thumb) {
+        cls = current['mode'];
+        console.log ('setThumbSelection: '+album+':'+thumb);
+        if (elem = get1stElementByClassName(cls+' selected',document.body)) { elem.className = cls }
+        $('thumb_'+album+'_'+thumb).addClassName('selected')
+    }
     // --------------------------------------------------------------------------------
     function showAlbumThumbs () {
         current['mode'] = 'albumThumbs';
@@ -49,7 +66,7 @@ template = {
 
     // --------------------------------------------------------------------------------
     function showThumbs (album) {
-        current['mode'] = 'thumbs';
+        current['mode'] = 'thumb';
         current['album'] = album;
 	arr = albums[album]['photos'];
 
@@ -67,6 +84,7 @@ template = {
 		{'key': key, 'i': i, 'album': album, 'photos': photos, "albums": albums, 'dim':dim}
 	    )
 	}
+        setThumbSelection(album,current['photo']);
     }
     // --------------------------------------------------------------------------------
     
@@ -77,7 +95,9 @@ template = {
     
     // --------------------------------------------------------------------------------
     function showPhoto (album,index) {
-        current['photo'] = [album,index];
+        index = index || current['photo']
+        album = album || current['album']
+        current['photo'] = index;
         current['album'] = album;
         current['mode'] = 'photo';
 	w = document.getElementById('viewPanel').clientWidth -20 
@@ -89,23 +109,15 @@ template = {
     }
     // --------------------------------------------------------------------------------
     function next () {
-        //current['photo'][0] - album index
-        //current['photo'][1] - photo index in album
-        if (current['mode'] == 'thumbs') { 
-            showPhoto(current['album'],0)
-            return (true)
-        } 
-        nextIdx = (current['photo'][1] == albums[current['photo'][0]]['photos'].length-1) ? 0 : current['photo'][1]+1
-        showPhoto (current['album'], nextIdx)
+        return (
+            current['photo']=(current['photo']==albums[current['album']]['photos'].length-1)?0:current['photo']+1
+        )
     }
 
     function prev () {
-        if (current['mode'] == 'thumbs') { 
-            showPhoto(current['album'],albums[current['album']]['photos'].length-1)
-            return(true)
-        }
-        nextIdx = (current['photo'][1] == 0) ? albums[current['photo'][0]]['photos'].length-1 : current['photo'][1]-1
-        showPhoto (current['photo'][0], nextIdx)
+        return (
+            current['photo']=(current['photo']==0)?albums[current['album']]['photos'].length-1:current['photo']-1
+        )
     }
 
     function KeyCheck (e) {
@@ -113,23 +125,19 @@ template = {
         switch (current['mode']) {
         case 'photo':
             switch(KeyPress) {
-            case 'left': prev(); break;
-            case 'right': next(); break;
-            case 'space': next(); break;
+            case 'left': showPhoto(current['album'],prev()); break;
+            case 'right': showPhoto(current['album'],next()); break;
+            case 'space': showPhoto(current['album'],next()); break;
             case 'escape': showThumbs(current['album']); break;
+                // enter: play show
             }
             break
-/*  TODO
- In thumbs mode key should do this:
- left/right - move selection back or forward,
- enter,space - open photo
- esc - go back to list of albums (album thumbs)
-*/
-        case 'thumbs':
+        case 'thumb':
             switch(KeyPress) {
-            case 'right': next (); break;
-            case 'left': prev(); break;
-            case 'space': next(); break;
+            case 'right': setThumbSelection(current['album'],next ()); break;
+            case 'left': setThumbSelection(current['album'],prev()); break;
+            case 'space': showPhoto();break;
+            case 'enter': showPhoto();break;
             case 'escape': showAlbumThumbs(); break;
             }
             break
