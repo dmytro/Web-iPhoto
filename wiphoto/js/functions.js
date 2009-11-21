@@ -2,11 +2,11 @@
 photo = [];
 screen = [];
 
-keyCode = {37:'left',38:'up',39:'right',40:'down',27:'escape',9:'tab',13:'enter',32:'space'};
+keyCode = {32:'space',33:'pgup',34:'pgdown',35:'end',36:'home',37:'left',38:'up',39:'right',40:'down',27:'escape',9:'tab',13:'enter',48:'0'};
 defaults = { 'navigation_width': 200, 'thumb_size': 120 };
 template = {
     'albumLink':
-    '<A ID="showThumbs_${album}" CLASS="thumb" HREF="JAVASCRIPT:showThumbs(${album});">${albums[album]["name"]}</A>',
+    '<A ID="showThumbs_${album}" CLASS="thumb" HREF="JAVASCRIPT:showThumbs(${album},0);">${albums[album]["name"]}</A>',
 // ----------------------------------------
     'albumThumb':
 
@@ -46,13 +46,14 @@ template = {
     // --------------------------------------------------------------------------------
     function setThumbSelection (album,thumb) {
         cls = current['mode'];
-        console.log ('setThumbSelection: '+album+':'+thumb);
         if (elem = get1stElementByClassName(cls+' selected',document.body)) { elem.className = cls }
-        $('thumb_'+album+'_'+thumb).addClassName('selected')
+        $('thumb_'+album+'_'+thumb).addClassName('selected');
+        $('thumb_'+album+'_'+thumb).scrollIntoView(false);
+        if (cls = 'thumb') { current['photo'] = thumb }
     }
     // --------------------------------------------------------------------------------
     function showAlbumThumbs () {
-        current['mode'] = 'albumThumbs';
+        current['mode'] = 'albumThumb';
 	out = '';
         document.getElementById('viewPanel').innerHTML = '';
 	for (var album in albums) {
@@ -65,15 +66,16 @@ template = {
     }
 
     // --------------------------------------------------------------------------------
-    function showThumbs (album) {
+    function showThumbs (album,thumb) {
         current['mode'] = 'thumb';
-        current['album'] = album;
-	arr = albums[album]['photos'];
+        current['album'] = album || current['album'];
+        current['photo'] = (thumb==0) ?0 :(thumb || current['photo']); 
+	arr = albums[current['album']]['photos'];
 
 	elem = getElementsByClassName('selected', document.body)[0]
 	if (elem) { elem.className = 'albumLink' }
 
-	document.getElementById("showThumbs_"+album).className = 'selected';
+	document.getElementById("showThumbs_"+current['album']).className = 'selected';
 	
 	document.getElementById('viewPanel').innerHTML = '';
 	for (var i=0; i< arr.length; i=i+1) {
@@ -81,10 +83,10 @@ template = {
             dim = fitInto(current['thumb_size'], current['thumb_size'], photos[key]['thumb']);
 	    document.getElementById('viewPanel').innerHTML +=
 	    TrimPath.parseTemplate(template['thumb']).process(
-		{'key': key, 'i': i, 'album': album, 'photos': photos, "albums": albums, 'dim':dim}
+		{'key': key, 'i': i, 'album': current['album'], 'photos': photos, "albums": albums, 'dim':dim}
 	    )
 	}
-        setThumbSelection(album,current['photo']);
+        setThumbSelection(current['album'],current['photo']);
     }
     // --------------------------------------------------------------------------------
     
@@ -95,53 +97,56 @@ template = {
     
     // --------------------------------------------------------------------------------
     function showPhoto (album,index) {
-        index = index || current['photo']
-        album = album || current['album']
-        current['photo'] = index;
-        current['album'] = album;
         current['mode'] = 'photo';
+        current['photo'] = (index==0) ?0 :(index||current['photo'])
+        current['album'] = album || current['album']
 	w = document.getElementById('viewPanel').clientWidth -20 
 	h = document.getElementById('viewPanel').clientHeight -20
-        key = albums[album]['photos'][index];
+        key = albums[current['album']]['photos'][current['photo']];
 	dim = fitInto(w,h,photos[key]['image']);
  	document.getElementById('viewPanel').innerHTML = 
 	    TrimPath.parseTemplate(template['photo']).process({'dim':dim, 'key':key, 'photos':photos})
     }
     // --------------------------------------------------------------------------------
+    function last () {
+        return (albums[current['album']]['photos'].length-1)
+    }
     function next () {
-        return (
-            current['photo']=(current['photo']==albums[current['album']]['photos'].length-1)?0:current['photo']+1
-        )
+        return ( (current['photo']==last()) ?0 :current['photo']+1 )
     }
 
     function prev () {
-        return (
-            current['photo']=(current['photo']==0)?albums[current['album']]['photos'].length-1:current['photo']-1
-        )
+        return ( (current['photo']==0)?last():current['photo']-1 )
     }
+
 
     function KeyCheck (e) {
         var KeyPress = (window.event) ? keyCode[event.keyCode] : keyCode[e.keyCode];
         switch (current['mode']) {
         case 'photo':
             switch(KeyPress) {
-            case 'left': showPhoto(current['album'],prev()); break;
-            case 'right': showPhoto(current['album'],next()); break;
-            case 'space': showPhoto(current['album'],next()); break;
-            case 'escape': showThumbs(current['album']); break;
+            case 'left': showPhoto(null,prev()); break;
+            case 'right': 
+            case 'space': 
+                showPhoto(null,next()); break;
+            case 'escape': showThumbs(); break;
                 // enter: play show
             }
             break
         case 'thumb':
             switch(KeyPress) {
+            case 'pgup': 
+            case '0': 
+                setThumbSelection(current['album'],0); break;
             case 'right': setThumbSelection(current['album'],next ()); break;
             case 'left': setThumbSelection(current['album'],prev()); break;
+            case 'pgdown': setThumbSelection(current['album'],last()); break;
             case 'space': showPhoto();break;
             case 'enter': showPhoto();break;
             case 'escape': showAlbumThumbs(); break;
             }
             break
-        case 'albumThumbs':
+        case 'albumThumb':
             break
         }
         return (true);
