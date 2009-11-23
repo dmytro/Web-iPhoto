@@ -80,6 +80,15 @@ a {
  font-family: Arial, Helvetica, Lucida, sans-serif;
  font-size: 8pt;
 }
+
+#viewPanel .albumThumb_img.selected {
+    margin: 3px;
+    border: 5px solid #FFC500;
+    padding: 3px;
+    -moz-border-radius: 10px; 
+    -webkit-border-radius: 10px; 
+}
+
 #viewPanel .albumThumb img {
  margin: 5px;
  padding: 1px;

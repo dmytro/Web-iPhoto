@@ -6,13 +6,13 @@ keyCode = {32:'space',33:'pgup',34:'pgdown',35:'end',36:'home',37:'left',38:'up'
 defaults = { 'navigation_width': 200, 'thumb_size': 120 };
 template = {
     'albumLink':
-    '<A ID="showThumbs_${album}" CLASS="thumb" HREF="JAVASCRIPT:showThumbs(${album},0);">${albums[album]["name"]}</A>',
+    '<A ID="showThumbs_${album}" CLASS="albumLink" HREF="JAVASCRIPT:showThumbs(${album},0);">${albums[album]["name"]}</A>',
 // ----------------------------------------
     'albumThumb':
 
     '<A HREF="JAVASCRIPT:showThumbs(${album});">\
 <SPAN ID="albumThumb_${album}" CLASS="albumThumb">\
-<IMG ID="albumThumb_img_${album}" WIDTH="${dim[0]}" HEIGHT="${dim[1]}" SRC="${photos[albums[album]["photos"][0]]["thumb"]["path"]}">\
+<IMG ID="albumThumb_img_${album}" CLASS="albumThumb_img" WIDTH="${dim[0]}" HEIGHT="${dim[1]}" SRC="${photos[albums[album]["photos"][0]]["thumb"]["path"]}">\
 <DIV STYLE="WIDTH: ${current["thumb_size"]+10}">${albums[album]["name"]} (${albums[album]["photos"].length})\
 </DIV>\
 </SPAN>\
@@ -28,7 +28,7 @@ template = {
 // ----------------------------------------
 };
     
-    current = { 'photo':0, 'album': 0, 'mode':'',thumb_size : defaults['thumb_size']};
+    current = { 'photo':0,'album': 0,'mode':'',thumb_size:defaults['thumb_size']};
     document.onkeyup = KeyCheck;       
     // --------------------------------------------------------------------------------
     function getElementsByClassName(classname, node)  {
@@ -45,50 +45,58 @@ template = {
     }
     // --------------------------------------------------------------------------------
     function setThumbSelection (album,thumb) {
-        cls = current['mode'];
-        if (elem = get1stElementByClassName(cls+' selected',document.body)) { elem.className = cls }
-        $('thumb_'+album+'_'+thumb).addClassName('selected');
-        $('thumb_'+album+'_'+thumb).scrollIntoView(false);
-        if (cls = 'thumb') { current['photo'] = thumb }
+        elem = $('thumb_'+album+'_'+thumb);
+        setSelection(elem);
+        if (current.mode == 'thumb') { current.photo = thumb }
+    }
+    // --------------------------------------------------------------------------------
+    function setSelection (elem,cls) {
+        cls = cls || current.mode;
+        if (elem_s = get1stElementByClassName(cls+' selected',document.body)) { elem_s.className = cls }
+        elem.addClassName('selected');
+        elem.scrollIntoView(false);
     }
     // --------------------------------------------------------------------------------
     function showAlbumThumbs () {
-        current['mode'] = 'albumThumb';
+        current.mode = 'albumThumb';
 	out = '';
-        document.getElementById('viewPanel').innerHTML = '';
+        $('viewPanel').innerHTML = '';
 	for (var album in albums) {
     	    out += TrimPath.parseTemplate(template['albumLink']).process({'album': album, 'albums': albums});
             dim = fitInto(current['thumb_size'], current['thumb_size'], photos[albums[album]['photos'][0]]['thumb']);
-            document.getElementById('viewPanel').innerHTML += 
+            $('viewPanel').innerHTML += 
             TrimPath.parseTemplate(template['albumThumb']).process({'current':current,'photos':photos,'dim':dim,'album': album, 'albums': albums});
 	}
-	document.getElementById('albumdata').innerHTML = out
+	$('albumdata').innerHTML = out
     }
 
     // --------------------------------------------------------------------------------
     function showThumbs (album,thumb) {
-        current['mode'] = 'thumb';
-        current['album'] = album || current['album'];
-        current['photo'] = (thumb==0) ?0 :(thumb || current['photo']); 
-	arr = albums[current['album']]['photos'];
+        current.mode = 'thumb';
+        current.album = album || current.album;
+        current.photo = (thumb==0) ?0 :(thumb || current.photo); 
 
-	elem = getElementsByClassName('selected', document.body)[0]
-	if (elem) { elem.className = 'albumLink' }
+        setSelection( $("showThumbs_"+current.album), 'albumLink'); // left side tab
 
-	document.getElementById("showThumbs_"+current['album']).className = 'selected';
-	
-	document.getElementById('viewPanel').innerHTML = '';
+	arr = albums[current.album].photos;	
+	$('viewPanel').innerHTML = '';
 	for (var i=0; i< arr.length; i=i+1) {
 	    key=arr[i];
-            dim = fitInto(current['thumb_size'], current['thumb_size'], photos[key]['thumb']);
-	    document.getElementById('viewPanel').innerHTML +=
-	    TrimPath.parseTemplate(template['thumb']).process(
-		{'key': key, 'i': i, 'album': current['album'], 'photos': photos, "albums": albums, 'dim':dim}
+            dim = fitInto(current.thumb_size, current.thumb_size, photos[key].thumb);
+	    $('viewPanel').innerHTML +=
+	    TrimPath.parseTemplate(template.thumb).process(
+		{'key': key, 'i': i, 'album': current.album, 'photos': photos, "albums": albums, 'dim':dim}
 	    )
 	}
-        setThumbSelection(current['album'],current['photo']);
+        setThumbSelection(current.album,current.photo);
     }
     // --------------------------------------------------------------------------------
+    function selectAlbum(album) {
+        current.album = album;
+        setSelection( $("showThumbs_"+current.album), 'albumLink'); // left side tab
+        setSelection( $("albumThumb_img_"+current.album), 'albumThumb_img'); 
+
+    }
     
     function fitInto (w,h,image) { // Container width and height, photo width and height
         proportion = Math.max(image['dim'][0]/w,image['dim'][1]/h);
@@ -97,38 +105,37 @@ template = {
     
     // --------------------------------------------------------------------------------
     function showPhoto (album,index) {
-        current['mode'] = 'photo';
-        current['photo'] = (index==0) ?0 :(index||current['photo'])
-        current['album'] = album || current['album']
-	w = document.getElementById('viewPanel').clientWidth -20 
-	h = document.getElementById('viewPanel').clientHeight -20
-        key = albums[current['album']]['photos'][current['photo']];
+        current.mode = 'photo';
+        current.photo = (index==0) ?0 :(index||current.photo)
+        current.album = album || current.album
+	w = $('viewPanel').clientWidth -20 
+	h = $('viewPanel').clientHeight -20
+        key = albums[current.album]['photos'][current.photo];
 	dim = fitInto(w,h,photos[key]['image']);
- 	document.getElementById('viewPanel').innerHTML = 
-	    TrimPath.parseTemplate(template['photo']).process({'dim':dim, 'key':key, 'photos':photos})
+ 	$('viewPanel').innerHTML = 
+	    TrimPath.parseTemplate(template.photo).process({'dim':dim, 'key':key, 'photos':photos})
     }
     // --------------------------------------------------------------------------------
     function last () {
-        return (albums[current['album']]['photos'].length-1)
+        return (albums[current.album].photos.length-1)
     }
     function next () {
-        return ( (current['photo']==last()) ?0 :current['photo']+1 )
+        return ( (current.photo==last()) ?0 :current.photo+1 )
     }
 
     function prev () {
-        return ( (current['photo']==0)?last():current['photo']-1 )
+        return ( (current.photo==0)?last():current.photo-1 )
     }
 
 
     function KeyCheck (e) {
         var KeyPress = (window.event) ? keyCode[event.keyCode] : keyCode[e.keyCode];
-        switch (current['mode']) {
+        switch (current.mode) {
         case 'photo':
             switch(KeyPress) {
             case 'left': showPhoto(null,prev()); break;
             case 'right': 
-            case 'space': 
-                showPhoto(null,next()); break;
+            case 'space':  showPhoto(null,next()); break;
             case 'escape': showThumbs(); break;
                 // enter: play show
             }
@@ -136,17 +143,23 @@ template = {
         case 'thumb':
             switch(KeyPress) {
             case 'pgup': 
-            case '0': 
-                setThumbSelection(current['album'],0); break;
-            case 'right': setThumbSelection(current['album'],next ()); break;
-            case 'left': setThumbSelection(current['album'],prev()); break;
-            case 'pgdown': setThumbSelection(current['album'],last()); break;
-            case 'space': showPhoto();break;
+            case '0':      setThumbSelection(current.album,0); break;
+            case 'right':  setThumbSelection(current.album,next ()); break;
+            case 'left':   setThumbSelection(current.album,prev()); break;
+            case 'pgdown': setThumbSelection(current.album,last()); break;
+
+            case 'space':
             case 'enter': showPhoto();break;
+
             case 'escape': showAlbumThumbs(); break;
             }
             break
         case 'albumThumb':
+            switch(KeyPress) {
+            case 'enter': 
+            case 'space':
+                showThumbs(); break;
+            }
             break
         }
         return (true);
@@ -156,4 +169,5 @@ template = {
 // --------------------------------------------------------------------------------
     function init() {
         showAlbumThumbs();
+        selectAlbum(1289);
     }

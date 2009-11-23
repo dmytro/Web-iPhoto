@@ -1,4 +1,9 @@
 #--
+install:
+  zip: install.zip
+  files:   wiphoto/CSS wiphoto/images wiphoto/index.html wiphoto/js
+  exclude: \*~ \*/albums.js \*/photos.js
+
 albums:
    names: SELECT primaryKey, Name FROM SqAlbum WHERE ClassName= 'Album' AND albumGroup = 8192
 #
