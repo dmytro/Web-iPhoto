@@ -1,0 +1,16 @@
+
+* Download wiPhoto files into some directory
+
+* Running ./wiphoto --help prints short summary of command line
+  options.
+
+* First time run:
+
+  ./wiphoto.rb --do all
+
+* Later if you only want to refresh data files without installing
+  HTML, Javascript and CSS do
+
+  ,/wiphoto --do data
+
+
