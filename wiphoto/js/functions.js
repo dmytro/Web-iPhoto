@@ -1,9 +1,11 @@
 
-photo = [];
-screen = [];
-
+defaults = { navigation_width: 200, thumb_size:120, slideShowDelay:5};
+//photo = [];
+//screen = [];
+slides = [];
+preload = {};
 keyCode = {32:'space',33:'pgup',34:'pgdown',35:'end',36:'home',37:'left',38:'up',39:'right',40:'down',27:'escape',9:'tab',13:'enter',48:'0'};
-defaults = { 'navigation_width': 200, 'thumb_size': 120 };
+
 template = {
     'albumLink':
     '<A ID="showThumbs_${album}" CLASS="albumLink" HREF="JAVASCRIPT:showThumbs(${album},0);">${albums[album]["name"]}</A>',
@@ -24,12 +26,13 @@ template = {
     '<A HREF="JAVASCRIPT:showPhoto(${album},${i});"><IMG ID="thumb_${album}_${i}" CLASS="thumb" WIDTH="${dim[0]}" HEIGHT="${dim[1]}" SRC="${photos[key]["thumb"]["path"]};"></A>',
 // ----------------------------------------
     'photo':
-    '<CENTER><IMG WIDTH="${dim[0]}" HEIGHT="${dim[1]}" ID="showPhoto" SRC="${photos[key]["image"]["path"]}"></CENTER>'
+    '<CENTER><IMG WIDTH="${dim[0]}" HEIGHT="${dim[1]}" ID="showPhoto" SRC="${photos[key]["image"]["path"]}"></CENTER>',
 // ----------------------------------------
+    'slide':
+    '<CENTER><IMG SRC="" ID="showPhoto" NAME="SlideShow" WIDTH="${dim[0]}" height=${dim[1]}"></CENTER>'
 };
     
-    current = { 'photo':0,'album': 0,'mode':'',thumb_size:defaults['thumb_size']};
-    document.onkeyup = KeyCheck;       
+    current = { 'photo':0,'album': 0,'mode':'',thumb_size:defaults.thumb_size, slideShowDelay:defaults.slideShowDelay};
     // --------------------------------------------------------------------------------
     function getElementsByClassName(classname, node)  {
         if(!node) node = document.getElementsByTagName("body")[0];
@@ -108,6 +111,7 @@ template = {
         current.mode = 'photo';
         current.photo = (index==0) ?0 :(index||current.photo)
         current.album = album || current.album
+//        console.log ("show "+album+':'+index);
 	w = $('viewPanel').clientWidth -20 
 	h = $('viewPanel').clientHeight -20
         key = albums[current.album]['photos'][current.photo];
@@ -137,7 +141,6 @@ template = {
             case 'right': 
             case 'space':  showPhoto(null,next()); break;
             case 'escape': showThumbs(); break;
-                // enter: play show
             }
             break
         case 'thumb':
@@ -156,11 +159,16 @@ template = {
             break
         case 'albumThumb':
             switch(KeyPress) {
-            case 'enter': 
-            case 'space':
-                showThumbs(); break;
+            case 'enter': play(); break;
+            case 'space': showThumbs(); break;
             }
             break
+        case 'slide':
+            switch(KeyPress) {
+            case 'escape': stopShow(); break;
+            case 'right': nextSlide(); break;
+            case 'left': prevSlide(); break;
+            }
         }
         return (true);
     }
@@ -169,5 +177,6 @@ template = {
 // --------------------------------------------------------------------------------
     function init() {
         showAlbumThumbs();
+        document.onkeyup = KeyCheck;       
         selectAlbum(1289);
     }
