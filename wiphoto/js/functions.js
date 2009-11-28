@@ -1,7 +1,9 @@
 
 defaults = { navigation_width: 200, thumb_size:120, slideShowSpeed:1};
 preload = {};
-keyCode = {32:'space',33:'pgup',34:'pgdown',35:'end',36:'home',37:'left',38:'up',39:'right',40:'down',27:'escape',9:'tab',13:'enter',48:'0'};
+keyCode = { 32:'space',33:'pgup',34:'pgdown',35:'end',36:'home',37:'left',38:'up',39:'right',40:'down',27:'escape',9:'tab',13:'enter',48:'0',
+            83:'s'
+          };
 
 template = {
     'albumLink':
@@ -19,8 +21,7 @@ template = {
     
 // ----------------------------------------
     'thumb':
-
-    '<A HREF="JAVASCRIPT:showPhoto(${album},${i});"><IMG ID="thumb_${album}_${i}" CLASS="thumb" WIDTH="${dim[0]}" HEIGHT="${dim[1]}" SRC="${photos[key]["thumb"]["path"]};"></A>',
+    '<A HREF="JAVASCRIPT:photo.mode(${album},${i});"><IMG ID="thumb_${album}_${i}" CLASS="thumb" WIDTH="${dim[0]}" HEIGHT="${dim[1]}" SRC="${photos[key]["thumb"]["path"]};"></A>',
 // ----------------------------------------
     'photo':
     '<CENTER><IMG WIDTH="${dim[0]}" HEIGHT="${dim[1]}" NAME="SlideShow" ID="showPhoto" SRC="${photos[key]["image"]["path"]}"></CENTER>'
@@ -110,69 +111,68 @@ template = {
     }
     
     // --------------------------------------------------------------------------------
-    function showPhoto (album,index) {
-//        current.mode('photo');
-        current.photo = (index==0) ?0 :(index||current.photo)
-        current.album = album || current.album
-//        console.log ("show "+album+':'+index);
-	w = $('viewPanel').clientWidth -20 
-	h = $('viewPanel').clientHeight -20
-        key = albums[current.album]['photos'][current.photo];
-	dim = fitInto(w,h,photos[key]['image']);
- 	$('viewPanel').innerHTML = 
-	    TrimPath.parseTemplate(template.photo).process({'dim':dim, 'key':key, 'photos':photos})
+    photo = {
+        show: function (album,index) {
+            current.photo = (index==0) ?0 :(index||current.photo)
+            current.album = album || current.album
+	    w = $('viewPanel').clientWidth -20 
+	    h = $('viewPanel').clientHeight -20
+            key = albums[current.album]['photos'][current.photo];
+	    dim = fitInto(w,h,photos[key]['image']);
+ 	    $('viewPanel').innerHTML = TrimPath.parseTemplate(template.photo).process({'dim':dim, 'key':key, 'photos':photos})
+        },
+        // --------------------------------------------------------------------------------
+        last: function () { return (albums[current.album].photos.length-1) },
+        next: function () { return ( (current.photo==photo.last()) ? 0 :current.photo+1 ) },
+        prev: function () { return ( (current.photo==0) ? photo.last():current.photo-1 ) },
+        mode: function(album,index) 
+           { current.mode('photo'); photo.show(album,index) }
     }
-    // --------------------------------------------------------------------------------
-    function last () {
-        return (albums[current.album].photos.length-1)
-    }
-    function next () {
-        return ( (current.photo==last()) ?0 :current.photo+1 )
-    }
-
-    function prev () {
-        return ( (current.photo==0)?last():current.photo-1 )
-    }
-
 
     function KeyCheck (e) {
         var KeyPress = (window.event) ? keyCode[event.keyCode] : keyCode[e.keyCode];
         switch (current.mode()) {
+        case 'albumThumb':
+            switch(KeyPress) {
+            case 'enter': 
+            case 's': 
+                show.play(); break;
+            case 'space': showThumbs(); break;
+            }
+            break
         case 'photo':
             switch(KeyPress) {
-            case 'left': showPhoto(null,prev()); break;
+            case 'left': photo.show(null,photo.prev()); break;
             case 'right': 
-            case 'space':  showPhoto(null,next()); break;
+            case 'space':  photo.show(null,photo.next()); break;
             case 'escape': showThumbs(); break;
+            case 'enter': show.play(); break;
             }
             break
         case 'thumb':
             switch(KeyPress) {
             case 'pgup': 
             case '0':      setThumbSelection(current.album,0); break;
-            case 'right':  setThumbSelection(current.album,next ()); break;
-            case 'left':   setThumbSelection(current.album,prev()); break;
-            case 'pgdown': setThumbSelection(current.album,last()); break;
+            case 'right':  setThumbSelection(current.album, photo.next()); break;
+            case 'left':   setThumbSelection(current.album, photo.prev()); break;
+            case 'pgdown': setThumbSelection(current.album, photo.last()); break;
 
-            case 'space':
-            case 'enter': current.mode('photo');showPhoto();break;
+            case 'space': photo.mode();break;
+            case 'enter': show.play(); break;
 
             case 'escape': showAlbumThumbs(); break;
             }
             break
-        case 'albumThumb':
-            switch(KeyPress) {
-            case 'enter': show.play(); break;
-            case 'space': showThumbs(); break;
-            }
-            break
         case 'slide':
             switch(KeyPress) {
-            case 'escape': show.stop(); break;
-            case 'space': show.toggle(); break;
+            case 'escape': 
+                if (show.running) show.stop()
+                else showThumbs()
+                break;
+            case 'space':
             case 'enter': show.toggle(); break;
             case 'right': show.next(); break;
-            case 'left': show.prev(); break;
+            case 'left':  show.prev(); break;
             }
         }
         return (true);
