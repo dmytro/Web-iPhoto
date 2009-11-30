@@ -1,41 +1,88 @@
+wiphoto = {defaults: { navigation_width: 200, thumb_size:120, slideShowSpeed:1}}
 
-defaults = { navigation_width: 200, thumb_size:120, slideShowSpeed:1};
-preload = {};
+wiphoto = {
+    defaults: wiphoto.defaults,
+    template: {
+        'albumLink':
+        '<A ID="showThumbs_${album}" CLASS="albumLink" HREF="JAVASCRIPT:showThumbs(${album},0);">${albums[album]["name"]}</A>',
+        // ----------------------------------------
+        'albumThumb':
+        
+        '<A HREF="JAVASCRIPT:showThumbs(${album});">'+
+            '<SPAN ID="albumThumb_${album}" CLASS="albumThumb">'+
+            '<IMG ID="albumThumb_img_${album}" CLASS="albumThumb_img" WIDTH="${dim[0]}" HEIGHT="${dim[1]}" SRC="${photos[albums[album]["photos"][0]]["thumb"]["path"]}">'+
+            '<DIV STYLE="WIDTH: ${wiphoto["thumb_size"]+10}">${albums[album]["name"]} (${albums[album]["photos"].length})'+
+            '</DIV></SPAN></A>',
+        // ----------------------------------------
+        'thumb':
+        '<A HREF="JAVASCRIPT:wiphoto.photo.setmode(${album},${i});"><IMG ID="thumb_${album}_${i}" CLASS="thumb" WIDTH="${dim[0]}" HEIGHT="${dim[1]}" SRC="${photos[key]["thumb"]["path"]};"></A>',
+        // ----------------------------------------
+        'photo':
+        '<CENTER><IMG WIDTH="${dim[0]}" HEIGHT="${dim[1]}" NAME="SlideShow" ID="showPhoto" SRC="${photos[key]["image"]["path"]}"></CENTER>'
+    },
+    album:0, 
+    thumb_size: wiphoto.defaults.thumb_size,
+    mode: function(mode) {
+        if(mode) {
+            wiphoto._mode = mode;
+            switch (mode) {
+            case 'photo':
+            case 'slide': 
+            case 'thumb': 
+                next = wiphoto.photo.next; 
+                prev = wiphoto.photo.prev; 
+                show = wiphoto.photo.show; 
+                play = slideShow.play;
+                break;
+            case 'albumThumb':
+                next = false;
+                prev = false;
+                play = slideShow.play;
+                break;
+            }
+            if(mode != 'slide') slideShow.stop()
+        }
+        return (wiphoto._mode)
+    },
+    // ------------------------------------------------------------
+    photo: {
+        current: 0,
+        show: function (album,index) {
+            wiphoto.photo.current = (index==0) ?0 :(index||wiphoto.photo.current)
+            wiphoto.album = album || wiphoto.album
+	    w = $('viewPanel').clientWidth -20 
+	    h = $('viewPanel').clientHeight -20
+            key = albums[wiphoto.album]['photos'][wiphoto.photo.current];
+	    dim = fitInto(w,h,photos[key]['image']);
+ 	    $('viewPanel').innerHTML = TrimPath.parseTemplate(wiphoto.template.photo).process({'dim':dim, 'key':key, 'photos':photos})
+        },
+        // --------------------------------------------------------------------------------
+        last:    function () { return (albums[wiphoto.album].photos.length-1) },
+        next:    function () { return ( (wiphoto.photo.current == wiphoto.photo.last()) ? 0 :wiphoto.photo.current+1 ) },
+        prev:    function () { return ( (wiphoto.photo.current == 0) ? wiphoto.photo.last():wiphoto.photo.current-1 ) },
+        setmode: function(album,index)  { wiphoto.mode('photo'); show(album,index) }
+    },
+    preload: {},
+
+    // ------------------------------------------------------------
+}
+
 keyCode = { 32:'space',33:'pgup',34:'pgdown',35:'end',36:'home',37:'left',38:'up',39:'right',40:'down',27:'escape',9:'tab',13:'enter',48:'0',
             83:'s'
           };
 
-template = {
-    'albumLink':
-    '<A ID="showThumbs_${album}" CLASS="albumLink" HREF="JAVASCRIPT:showThumbs(${album},0);">${albums[album]["name"]}</A>',
-// ----------------------------------------
-    'albumThumb':
-
-    '<A HREF="JAVASCRIPT:showThumbs(${album});">\
-<SPAN ID="albumThumb_${album}" CLASS="albumThumb">\
-<IMG ID="albumThumb_img_${album}" CLASS="albumThumb_img" WIDTH="${dim[0]}" HEIGHT="${dim[1]}" SRC="${photos[albums[album]["photos"][0]]["thumb"]["path"]}">\
-<DIV STYLE="WIDTH: ${current["thumb_size"]+10}">${albums[album]["name"]} (${albums[album]["photos"].length})\
-</DIV>\
-</SPAN>\
-</A>',
     
-// ----------------------------------------
-    'thumb':
-    '<A HREF="JAVASCRIPT:photo.mode(${album},${i});"><IMG ID="thumb_${album}_${i}" CLASS="thumb" WIDTH="${dim[0]}" HEIGHT="${dim[1]}" SRC="${photos[key]["thumb"]["path"]};"></A>',
-// ----------------------------------------
-    'photo':
-    '<CENTER><IMG WIDTH="${dim[0]}" HEIGHT="${dim[1]}" NAME="SlideShow" ID="showPhoto" SRC="${photos[key]["image"]["path"]}"></CENTER>'
-};
-    
-    current = { photo:0,album:0,thumb_size:defaults.thumb_size,
-                mode:function(mode) {
-                    if(mode) { 
-                        current._mode = mode;
-                        if(mode != 'slide') show.stop()
-                    }
-                    return (current._mode)
-                },
-              };
+//     current = { 
+//         photo:0, album:0, thumb_size:wiphoto.defaults.thumb_size,
+//                 mode:function(mode) {
+//                     if(mode) { 
+//                         current._mode = mode;
+                        
+//                         if(mode != 'slide') slideShow.stop()
+//                     }
+//                     return (current._mode)
+//                 },
+//               };
 
     // --------------------------------------------------------------------------------
     function getElementsByClassName(classname, node)  {
@@ -54,54 +101,56 @@ template = {
     function setThumbSelection (album,thumb) {
         elem = $('thumb_'+album+'_'+thumb);
         setSelection(elem);
-        if (current.mode('thumb')) { current.photo = thumb }
+        if (wiphoto.mode('thumb')) { wiphoto.photo.current = thumb }
     }
     // --------------------------------------------------------------------------------
     function setSelection (elem,cls) {
-        cls = cls || current.mode();
+        cls = cls || wiphoto.mode();
         if (elem_s = get1stElementByClassName(cls+' selected',document.body)) { elem_s.className = cls }
         elem.addClassName('selected');
         elem.scrollIntoView(false);
     }
     // --------------------------------------------------------------------------------
     function showAlbumThumbs () {
-        current.mode('albumThumb');
+        wiphoto.mode('albumThumb');
+        template = wiphoto.template;
 	out = '';
         $('viewPanel').innerHTML = '';
 	for (var album in albums) {
     	    out += TrimPath.parseTemplate(template['albumLink']).process({'album': album, 'albums': albums});
-            dim = fitInto(current['thumb_size'], current['thumb_size'], photos[albums[album]['photos'][0]]['thumb']);
+            dim = fitInto(wiphoto['thumb_size'], wiphoto['thumb_size'], photos[albums[album]['photos'][0]]['thumb']);
             $('viewPanel').innerHTML += 
-            TrimPath.parseTemplate(template['albumThumb']).process({'current':current,'photos':photos,'dim':dim,'album': album, 'albums': albums});
+            TrimPath.parseTemplate(template['albumThumb']).process({'wiphoto':wiphoto,'photos':photos,'dim':dim,'album': album, 'albums': albums});
 	}
 	$('albumdata').innerHTML = out
     }
 
     // --------------------------------------------------------------------------------
     function showThumbs (album,thumb) {
-        current.mode('thumb');
-        current.album = album || current.album;
-        current.photo = (thumb==0) ?0 :(thumb || current.photo); 
+        wiphoto.mode('thumb');
+        wiphoto.album = album || wiphoto.album;
+        wiphoto.photo.current = (thumb==0) ?0 :(thumb || wiphoto.photo.current); 
 
-        setSelection( $("showThumbs_"+current.album), 'albumLink'); // left side tab
+        setSelection( $("showThumbs_"+wiphoto.album), 'albumLink'); // left side tab
 
-	arr = albums[current.album].photos;	
+	arr = albums[wiphoto.album].photos;	
 	$('viewPanel').innerHTML = '';
 	for (var i=0; i< arr.length; i=i+1) {
 	    key=arr[i];
-            dim = fitInto(current.thumb_size, current.thumb_size, photos[key].thumb);
+            dim = fitInto(wiphoto.thumb_size, wiphoto.thumb_size, photos[key].thumb);
+            template = wiphoto.template;
 	    $('viewPanel').innerHTML +=
 	    TrimPath.parseTemplate(template.thumb).process(
-		{'key': key, 'i': i, 'album': current.album, 'photos': photos, "albums": albums, 'dim':dim}
+		{'key': key, 'i': i, 'album': wiphoto.album, 'photos': photos, "albums": albums, 'dim':dim}
 	    )
 	}
-        setThumbSelection(current.album,current.photo);
+        setThumbSelection(wiphoto.album,wiphoto.photo.current);
     }
     // --------------------------------------------------------------------------------
     function selectAlbum(album) {
-        current.album = album;
-        setSelection( $("showThumbs_"+current.album), 'albumLink'); // left side tab
-        setSelection( $("albumThumb_img_"+current.album), 'albumThumb_img'); 
+        wiphoto.album = album;
+        setSelection( $("showThumbs_"+wiphoto.album), 'albumLink'); // left side tab
+        setSelection( $("albumThumb_img_"+wiphoto.album), 'albumThumb_img'); 
 
     }
     
@@ -111,54 +160,37 @@ template = {
     }
     
     // --------------------------------------------------------------------------------
-    photo = {
-        show: function (album,index) {
-            current.photo = (index==0) ?0 :(index||current.photo)
-            current.album = album || current.album
-	    w = $('viewPanel').clientWidth -20 
-	    h = $('viewPanel').clientHeight -20
-            key = albums[current.album]['photos'][current.photo];
-	    dim = fitInto(w,h,photos[key]['image']);
- 	    $('viewPanel').innerHTML = TrimPath.parseTemplate(template.photo).process({'dim':dim, 'key':key, 'photos':photos})
-        },
-        // --------------------------------------------------------------------------------
-        last: function () { return (albums[current.album].photos.length-1) },
-        next: function () { return ( (current.photo==photo.last()) ? 0 :current.photo+1 ) },
-        prev: function () { return ( (current.photo==0) ? photo.last():current.photo-1 ) },
-        mode: function(album,index) 
-           { current.mode('photo'); photo.show(album,index) }
-    }
 
     function KeyCheck (e) {
         var KeyPress = (window.event) ? keyCode[event.keyCode] : keyCode[e.keyCode];
-        switch (current.mode()) {
+        switch (wiphoto.mode()) {
         case 'albumThumb':
             switch(KeyPress) {
             case 'enter': 
             case 's': 
-                show.play(); break;
+                slideShow.play(); break;
             case 'space': showThumbs(); break;
             }
             break
         case 'photo':
             switch(KeyPress) {
-            case 'left': photo.show(null,photo.prev()); break;
+            case 'left': show(null,prev()); break;
             case 'right': 
-            case 'space':  photo.show(null,photo.next()); break;
+            case 'space':  show(null,next()); break;
             case 'escape': showThumbs(); break;
-            case 'enter': show.play(); break;
+            case 'enter': slideShow.play(); break;
             }
             break
         case 'thumb':
             switch(KeyPress) {
             case 'pgup': 
-            case '0':      setThumbSelection(current.album,0); break;
-            case 'right':  setThumbSelection(current.album, photo.next()); break;
-            case 'left':   setThumbSelection(current.album, photo.prev()); break;
-            case 'pgdown': setThumbSelection(current.album, photo.last()); break;
+            case '0':      setThumbSelection(wiphoto.album,0); break;
+            case 'right':  setThumbSelection(wiphoto.album, next()); break;
+            case 'left':   setThumbSelection(wiphoto.album, prev()); break;
+            case 'pgdown': setThumbSelection(wiphoto.album, last()); break;
 
-            case 'space': photo.mode();break;
-            case 'enter': show.play(); break;
+            case 'space': wiphoto.photo.mode();break;
+            case 'enter': slideShow.play(); break;
 
             case 'escape': showAlbumThumbs(); break;
             }
@@ -166,13 +198,13 @@ template = {
         case 'slide':
             switch(KeyPress) {
             case 'escape': 
-                if (show.running) show.stop()
+                if (slideShow.running) slideShow.stop()
                 else showThumbs()
                 break;
             case 'space':
-            case 'enter': show.toggle(); break;
-            case 'right': show.next(); break;
-            case 'left':  show.prev(); break;
+            case 'enter': slideShow.toggle(); break;
+            case 'right': slideShow.next(); break;
+            case 'left':  slideShow.prev(); break;
             }
         }
         return (true);
@@ -183,5 +215,6 @@ template = {
     function init() {
         showAlbumThumbs();
         document.onkeyup = KeyCheck;       
+        wiphoto.mode('albumThumb')
         selectAlbum(1289);
     }
