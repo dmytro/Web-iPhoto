@@ -1,4 +1,7 @@
 
+wiPhoto
+==========
+
 Web iPhoto (or wiPhoto) is a client side web album application. Main
 use for it is thought to browse iPhoto picture collections in web
 browser without need of iPhoto application.
@@ -103,18 +106,6 @@ Following goals were pursued in development of wiPhoto :
 * Java-script to provide normal application type interaction (keybord
   use for navigation, do not rely heavily on mouse). Application
   should look like application, not like web page.
-
-TO-DO:
-
-* Slide-show
-* Full "screen" mode (hide navigation panels)
-* Hide/show controls depending on mode
-* Folders of albums
-* Events. Event photos are not stored in SQLite, only XML in iPhoto 8.1. 
-* Paging for large albums - photo album with ~500 photos generates
-  'Slow script' warning.
-
-
 
 Author
 --------------------
