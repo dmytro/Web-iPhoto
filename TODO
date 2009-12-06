@@ -1,0 +1,10 @@
+TO-DO:
+
+* Slide-show - works now, TODO: toggle() 
+* Full "screen" mode (hide navigation panels)
+* Hide/show controls depending on mode
+* Folders of albums
+* Events. Event photos are not stored in SQLite, only XML in iPhoto 8.1. 
+* Paging for large albums - photo album with ~500 photos generates
+  'Slow script' warning.
+

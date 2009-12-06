@@ -55,19 +55,23 @@ a {
  padding-left: 10px;
 }
 
-#viewPanel .thumb {
- margin: 5px;
- padding: 1px;
- border: 5px solid #fff;
- border-right: 5px solid #777;
- border-bottom: 5px solid #777;
- font-family: Arial, Helvetica, Lucida, sans-serif;
- font-size: 8pt;
+#viewPanel .thumb,
+#viewPanel .albumThumb_img
+{
+    border: 5px solid #fff;
+    border-right: 3px solid #ccc; 
+    border-bottom: 3px solid #ccc; 
+    margin: 3px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    padding: 2px;
 }
 
-#viewPanel .thumb.selected {
-    margin: 3px;
+#viewPanel .thumb.selected,
+#viewPanel .albumThumb_img.selected
+{
     border: 5px solid #FFC500;
+    margin: 2px;
     padding: 3px;
     -moz-border-radius: 10px; 
     -webkit-border-radius: 10px; 
@@ -77,24 +81,11 @@ a {
 #viewPanel .albumThumb {
  float: left;
  padding: 5px;
+ border: 3px solid white;
  font-family: Arial, Helvetica, Lucida, sans-serif;
  font-size: 8pt;
 }
 
-#viewPanel .albumThumb_img.selected {
-    margin: 3px;
-    border: 5px solid #FFC500;
-    padding: 3px;
-    -moz-border-radius: 10px; 
-    -webkit-border-radius: 10px; 
-}
-
-#viewPanel .albumThumb img {
- margin: 5px;
- padding: 1px;
- border-right: 3px solid #777;
- border-bottom: 3px solid #777;
-}
 #viewPanel .albumThumb a {
  text-decoration: none;
 }
