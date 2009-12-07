@@ -2,7 +2,7 @@
 keyCode = { 32:'space',33:'pgup',34:'pgdown',35:'end',36:'home',37:'left',38:'up',39:'right',40:'down',27:'escape',9:'tab',13:'enter',48:'0', 83:'s' }
 
 // Define defaults here, so that can use them later on
-wiphoto = { defaults: { navigation_width: 200, thumb_size:120, slideShowSpeed:3} }
+wiphoto = { defaults: { navigation_width: 200, thumb_size:120, slideShowSpeed:1, partload: { startat: 30, firstload: 20, nextload: 10, delay: 0.1} } }
 
 wiphoto = {
     defaults: wiphoto.defaults,
@@ -12,13 +12,13 @@ wiphoto = {
         // ----------------------------------------
         'albumThumb':
         
-        '<A HREF="JAVASCRIPT:wiphoto.photo.thumb.show(${album});">'+
+        '<A id="aThumbHREF_${album}" HREF="JAVASCRIPT:wiphoto.photo.thumb.show(${album});">'+
             '<SPAN ID="albumThumb_${album}" CLASS="albumThumb">'+
             '<IMG ID="albumThumb_img_${album}" CLASS="albumThumb_img" WIDTH="${dim[0]}" HEIGHT="${dim[1]}" SRC="${photos[albums[album]["photos"][0]]["thumb"]["path"]}">'+
             '<DIV STYLE="WIDTH: ${wiphoto.photo.thumb.size+10}">${albums[album]["name"]} (${albums[album]["photos"].length})</DIV></SPAN></A>',
         // ----------------------------------------
         'thumb':
-        '<A HREF="JAVASCRIPT:wiphoto.photo.setmode(${album},${i});">'+
+        '<A id="t_href_${album}_${i}" HREF="JAVASCRIPT:wiphoto.photo.setmode(${album},${i});">'+
             '<IMG ID="thumb_${album}_${i}" CLASS="thumb" WIDTH="${dim[0]}" HEIGHT="${dim[1]}" SRC="${photos[key]["thumb"]["path"]};"></A>',
         // ----------------------------------------
         'photo':
@@ -127,7 +127,7 @@ wiphoto = {
                 a = a || wiphoto.album.current
                 t = (t==0) ? 0 : t || wiphoto.photo.current
                 with(wiphoto.photo.thumb) {
-                    if (_selected) $(_selected).removeClassName('selected')
+                    if ($(_selected)) $(_selected).removeClassName('selected')
                     _selected = 'thumb_'+a+'_'+t
                     $(_selected).addClassName('selected')
                     $(_selected).scrollIntoView(false)
@@ -138,6 +138,33 @@ wiphoto = {
                     return (_selected)
                 }
             },
+            timeout: false,
+            // Load thumbs of an album in smaller pieces if album has
+            // too many pictures. To avould JS script timeout.
+            showPart: function(from,n) {
+                with(wiphoto) {
+                    a = album.current
+	            for (var i=from; i< from+n; i=i+1) {
+                        if (i == albums[a].photos.length-1) return (true)
+                        
+	                key=albums[a].photos[i]
+                        elem = new Element('span')
+                        dim = fitInto(photo.thumb.size, photo.thumb.size, photos[key].thumb);
+                        
+                        elem.update(TrimPath.parseTemplate(template.thumb).process(
+		            {'key': key, 'i': i, 'album': album.current, 'photos': photos, "albums": albums, 'dim':dim}))
+                        
+	                $('viewPanel').insert(elem)
+                
+                        if (photo.current == i) 
+                            photo.thumb.selected (album.current, photo.current);
+                    }
+                    s = from + n
+                    with (wiphoto.defaults.partload) 
+                        wiphoto.photo.thumb.timeout = setTimeout('wiphoto.photo.thumb.showPart('+s+','+nextload+')',delay*1000)
+                }
+            },
+
             show: function(a,t) {
                 with(wiphoto) {
                     mode('thumb');
@@ -147,14 +174,21 @@ wiphoto = {
                     album.selected(album.current)
                     
 	            arr = albums[album.current].photos;	
-	            $('viewPanel').innerHTML = '';
+	            $('viewPanel').update('');
+                    
+                    with(wiphoto.defaults.partload) 
+                        if (arr.length > startat) { photo.thumb.showPart(0,firstload); return }
+
+
 	            for (var i=0; i< arr.length; i=i+1) {
+                        elem = new Element('span')
 	                key=arr[i];
                         dim = fitInto(photo.thumb.size, photo.thumb.size, photos[key].thumb);
-	                $('viewPanel').innerHTML +=
-	                TrimPath.parseTemplate(template.thumb).process(
-		            {'key': key, 'i': i, 'album': album.current, 'photos': photos, "albums": albums, 'dim':dim}
-	                )
+                        
+                        elem.update(TrimPath.parseTemplate(template.thumb).process(
+		            {'key': key, 'i': i, 'album': album.current, 'photos': photos, "albums": albums, 'dim':dim}))
+
+	                $('viewPanel').insert(elem)
 	            }
                     photo.thumb.selected (album.current, photo.current);
                 }
@@ -177,12 +211,14 @@ wiphoto = {
                 break;
 
             case 'albumThumb':
-                next = false;
-                prev = false;
+                next = wiphoto.album.next;
+                prev = wiphoto.album.prev;
                 play = wiphoto.slides.play;
+                wiphoto.photo.current = 0
                 break;
             }
             if(mode != 'slide') wiphoto.slides.stop()
+            if(mode != 'thumb') clearTimeout(wiphoto.photo.thumb.timeout)
         }
         return (wiphoto._mode)
     },
@@ -216,11 +252,9 @@ wiphoto = {
             }
         },
         toggle: function () {
-            // TODO
-            // file:///Users/dmytro/Development/Web-iPhoto/wiphoto/js/slides.js:12TypeError: Result of expression 'albums[wiphoto.album.current]' [undefined] is not an object.
             with(wiphoto.slides) {
                 if (running) stop()
-                else with(wiphoto) play(album, photo.current)
+                else with(wiphoto) play(album.current, photo.current)
             }
         },
         prev: function () {

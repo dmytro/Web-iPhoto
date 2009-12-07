@@ -1,10 +1,14 @@
 TO-DO:
 
-* Slide-show - works now, TODO: toggle() 
+* Next/Prev buttons in albumThumb mode
 * Full "screen" mode (hide navigation panels)
 * Hide/show controls depending on mode
 * Folders of albums
 * Events. Event photos are not stored in SQLite, only XML in iPhoto 8.1. 
+
+
 * Paging for large albums - photo album with ~500 photos generates
-  'Slow script' warning.
+  'Slow script' warning. (done 7/12/'09)
+* Slide-show - done, 
+  TODO: toggle() -- done 7/12/'09
 
