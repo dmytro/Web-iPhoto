@@ -5,7 +5,9 @@ install:
   exclude: \*~ \*/albums.js \*/photos.js
 
 albums:
-   names: SELECT primaryKey, Name FROM SqAlbum WHERE ClassName= 'Album' AND albumGroup = 8192
+   names: SELECT primaryKey, Name, Parent,ClassName FROM SqAlbum WHERE primaryKey < 999000
+#ClassName= 'Album'
+# AND albumGroup = 8192
 #
 # Find folders togetherwith albums in folders
 # select primaryKey,parent,siblingOrder,repAlbumKeyForLoading from SqAlbum

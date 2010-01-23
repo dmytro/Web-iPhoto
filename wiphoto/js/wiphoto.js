@@ -7,8 +7,13 @@ wiphoto = { defaults: { navigation_width: 200, thumb_size:120, slideShowSpeed:1,
 wiphoto = {
     defaults: wiphoto.defaults,
     template: {
-        'menuItem':
-        '<A ID="navMenu_${album}" CLASS="menuItem" HREF="JAVASCRIPT:wiphoto.photo.thumb.show(${album},0);">${albums[album]["name"]}</A>',
+        'menuAlbum':
+        '<DIV CLASS="menuItem"><A ID="navMenu_${album}" HREF="JAVASCRIPT:wiphoto.photo.thumb.show(${album},0);">'+
+            '<IMG CLASS="menu_icon" SRC="./wiphoto/images/album.png">${albums[album]["name"]}</A></DIV>',
+
+        'menuFolder':
+        '<DIV CLASS="menuItem"><A ID="navMenu_${album}" HREF="JAVASCRIPT:wiphoto.photo.thumb.show(${album},0);">'+
+            '<IMG CLASS="menu_icon" SRC="./wiphoto/images/folder.png">${albums[album]["name"]}</A></DIV>',
         // ----------------------------------------
         'albumThumb':
         
@@ -19,7 +24,7 @@ wiphoto = {
         // ----------------------------------------
         'thumb':
         '<A id="t_href_${album}_${i}" HREF="JAVASCRIPT:wiphoto.photo.setmode(${album},${i});">'+
-            '<IMG ID="thumb_${album}_${i}" CLASS="thumb" WIDTH="${dim[0]}" HEIGHT="${dim[1]}" SRC="${photos[key]["thumb"]["path"]};"></A>',
+            '<IMG ID="thumb_${album}_${i}" CLASS="thumb" WIDTH="${dim[0]}" HEIGHT="${dim[1]}" SRC="${photos[key]["thumb"]["path"]}"></A>',
         // ----------------------------------------
         'photo':
         '<CENTER><IMG WIDTH="${dim[0]}" HEIGHT="${dim[1]}" NAME="SlideShow" ID="showPhoto" SRC="${photos[key]["image"]["path"]}"></CENTER>'
@@ -33,10 +38,10 @@ wiphoto = {
             with (wiphoto.album) {
                 if (a) {
                     if ($("navMenu_"+_selected)) $("navMenu_"+_selected).removeClassName('selected')
-                    $("navMenu_"+a).addClassName('selected');
+                    if ($("navMenu_"+a)) $("navMenu_"+a).addClassName('selected');
                     if (wiphoto.mode() == 'albumThumb') {
                         if ($("albumThumb_img_"+_selected)) $("albumThumb_img_"+_selected).removeClassName('selected')
-                        $("albumThumb_img_"+a).addClassName('selected')
+                        if ($("albumThumb_img_"+a)) $("albumThumb_img_"+a).addClassName('selected')
                     }
                     current = a
                     _selected = a
@@ -62,7 +67,7 @@ wiphoto = {
                     if (current == keys[i]) return keys[i+1]
                 }
             }
-},
+        },
         // ----------
         thumb: { // album.thumb
             show: function () {
@@ -71,16 +76,12 @@ wiphoto = {
                     parse = TrimPath.parseTemplate
 
                     $('viewPanel').update('')
-                    $('albumdata').update('')
 
 	            for (var a in albums) {
-                        menu = new Element('div')
-                        menu.update(parse(template.menuItem).process({'album': a, 'albums': albums}))
-    	                $('albumdata').insert(menu)
 
                         link = new Element('span')
                         X = photo.thumb.size
-                        dim = fitInto( X, X, photos[albums[a]['photos'][0]]['thumb']);
+                        dim = photos[albums[a]['photos'][0]] ? fitInto( X, X, photos[albums[a]['photos'][0]]['thumb']) : [0,0];
                         
                         link.update(parse(template.albumThumb).process({'wiphoto':wiphoto,'photos':photos,'dim':dim,'album': a, 'albums': albums}))
 
@@ -91,12 +92,34 @@ wiphoto = {
             }
         }
     },
+    menu : { 
+        show: function () { // wiphoto.menu.show
+            $('albumdata').update('')
+            for (var node in tree) wiphoto.menu.item (node,tree[node],0)
+        },
+        item: function (node,arr,indent) { // wiphoto.menu.item
+            parse = TrimPath.parseTemplate
+            item = new Element('div')
+            with (wiphoto) {
+                if (!albums[node]) { return }
+                if (albums[node]['type'] == 'Album') {
+                    item.update(parse(template.menuAlbum).process({'album': node, 'albums': albums}))
+    	            $('albumdata').insert(item)
+                } else {
+                    item.update(parse(template.menuFolder).process({'album': node, 'albums': albums}))
+     	            $('albumdata').insert(item)
+                    for (var sub in arr) menu.item(sub,arr[sub],indent+1)
+                }
+                $("navMenu_"+node).style.paddingLeft = indent * 10;
+            }
+        }
+    },
     // ------------------------------------------------------------
     // Display PHOTO both manual and slide show mode
     //
-    photo: {
+    photo: { // wiphoto.photo
         current: 0,
-        show: function (a,p) {
+        show: function (a,p) { // wiphoto.photo.show
             with(wiphoto){
                 photo.current = (p==0) ?0 :(p || photo.current)
                 album.current = a || album.current
@@ -114,22 +137,22 @@ wiphoto = {
         preload: function(i) {
             key = albums[wiphoto.album.current].photos[i]
             wiphoto.preload[key] = new Image ()
-            wiphoto.preload[key].src = photos[key].image.path
+            wiphoto.preload[key].src = photos[key] ? photos[key].image.path : ''
         },
         last:    function () { return (albums[wiphoto.album.current].photos.length-1) },
         next:    function () { with(wiphoto.photo) {return ( (current == last()) ? 0 :current+1 ) }},
         prev:    function () { with(wiphoto.photo) {return ( (current == 0) ? last():current-1 ) }},
         setmode: function(a,i)  { wiphoto.mode('photo'); show(a,i) },
-        thumb: { // photo.thumb
+        thumb: { // wiphoto.photo.thumb
             size: wiphoto.defaults.thumb_size,
             _selected: 0,
-            selected: function(a,t) {
+            selected: function(a,t) { // wiphoto.photo.thumb.selected
                 a = a || wiphoto.album.current
                 t = (t==0) ? 0 : t || wiphoto.photo.current
                 with(wiphoto.photo.thumb) {
                     if ($(_selected)) $(_selected).removeClassName('selected')
                     _selected = 'thumb_'+a+'_'+t
-                    $(_selected).addClassName('selected')
+                    if ($(_selected)) $(_selected).addClassName('selected')
                     $(_selected).scrollIntoView(false)
                     if (wiphoto.mode('thumb')) {
                         wiphoto.photo.current = t 
@@ -141,7 +164,7 @@ wiphoto = {
             timeout: false,
             // Load thumbs of an album in smaller pieces if album has
             // too many pictures. To avould JS script timeout.
-            showPart: function(from,n) {
+            showPart: function(from,n) { // wiphoto.photo.thumb.showPart
                 with(wiphoto) {
                     a = album.current
 	            for (var i=from; i< from+n; i=i+1) {
@@ -165,7 +188,7 @@ wiphoto = {
                 }
             },
 
-            show: function(a,t) {
+            show: function(a,t) { //wiphoto.photo.thumb.show
                 with(wiphoto) {
                     mode('thumb');
                     album.current = a || album.current;
@@ -378,4 +401,6 @@ wiphoto = {
             current = keys[0]
             thumb.show()
         }
+        wiphoto.menu.show()
+
     }

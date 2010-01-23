@@ -7,13 +7,44 @@
 
  CREATE TABLE MasterSchema (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT, version INT, theSchema BLOB);
 
- CREATE TABLE SqAlbum (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT, className VARCHAR, name VARCHAR, uid VARCHAR, sortOrder INT, sortDirection INT, sortHonorRolls INT, visible INT, lastScrollFloat REAL, lastScrollLong INT, albumGroup INT, photocastURL VARCHAR, yearHeaders BLOB, closedRolls BLOB, closedStacks BLOB, siblingOrder INT, parent INT, repAlbumKeyForLoading INT, attributes BLOB, largeIconImageName VARCHAR, iconImageName VARCHAR, showingChildren INT);
+ CREATE TABLE SqAlbum (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT,
+	className VARCHAR,
+	name VARCHAR,
+	uid VARCHAR,
+	sortOrder INT,
+	sortDirection INT,
+	sortHonorRolls INT,
+	visible INT,
+	lastScrollFloat REAL,
+	lastScrollLong INT,
+	albumGroup INT,
+	photocastURL VARCHAR,
+	yearHeaders BLOB,
+	closedRolls BLOB,
+	closedStacks BLOB,
+	siblingOrder INT,
+	parent INT,
+	repAlbumKeyForLoading INT,
+	attributes BLOB,
+	largeIconImageName VARCHAR,
+	iconImageName VARCHAR,
+	showingChildren INT);
 
  CREATE TABLE SqBookAlbum (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT, bookProductType INT, onePhotoPerPage INT, photosAdded INT, bookShowUpgraded INT, bookAlbumVersion INT);
 
  CREATE TABLE SqEvent (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT, keyPhotoKey INT, name VARCHAR, comment VARCHAR, rollDate REAL, rollDirectories BLOB, rollID INT, currentPhotoKey INT, displayOrder INT, emptyRoll INT, uid VARCHAR, locationStreet VARCHAR, locationCity VARCHAR, locationCounty VARCHAR, locationState VARCHAR, locationPostalCode VARCHAR, locationCountry VARCHAR, locationLatitude REAL, locationLongitude REAL, locationRadius REAL, locationKey INT, manualLocation INT, ocean INT, country INT, province INT, county INT, city INT, neighborhood INT, aoi INT, poi INT, namedPlace INT, attributes BLOB);
 
- CREATE TABLE SqFileImage (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT, photoKey INT, imageType INT, version INT, imageWidth REAL, imageHeight REAL, rotation REAL, rasterToDisplayRotation REAL, currentToOriginalRotation REAL, fileSize INT, sqFileInfo INT);
+ CREATE TABLE SqFileImage (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT,
+	photoKey INT,
+	imageType INT,
+	version INT,
+	imageWidth REAL,
+	imageHeight REAL,
+	rotation REAL,
+	rasterToDisplayRotation REAL,
+	currentToOriginalRotation REAL,
+	fileSize INT,
+	sqFileInfo INT);
 
  CREATE TABLE SqFileInfo (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT, format INT, relativePath VARCHAR, aliasPath VARCHAR);
 
@@ -25,7 +56,52 @@
 
  CREATE TABLE SqKeyword (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR, shortcut VARCHAR);
 
- CREATE TABLE SqPhotoInfo (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT, photoDate REAL, isVisible INT, showInLibrary INT, isUserHidden INT, isOpen INT, caption VARCHAR, comments VARCHAR, uid VARCHAR, ranking INT, readOnly INT, faceDetectionFromCached INT, faceDetectionRotationFromOriginal REAL, editState INT, thumbnailVersion INT, thumbCacheIndex INT, metaModDate REAL, modificationDate REAL, archiveFilename VARCHAR, cameraModel VARCHAR, isoSpeedRating INT, flash INT, shutterSpeed REAL, aperture REAL, focalLength REAL, needsLocationLookup INT, locationCountry VARCHAR, locationState VARCHAR, locationCounty VARCHAR, locationCity VARCHAR, locationPostalCode VARCHAR, locationStreet VARCHAR, gpsLatitude REAL, gpsLongitude REAL, manualLocation INT, ocean INT, country INT, province INT, county INT, city INT, neighborhood INT, aoi INT, poi INT, namedPlace INT, originalEvent INT, event INT);
+ CREATE TABLE SqPhotoInfo (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT,
+	photoDate REAL,
+	isVisible INT,
+	showInLibrary INT,
+	isUserHidden INT,
+	isOpen INT,
+	caption VARCHAR,
+	comments VARCHAR,
+	uid VARCHAR,
+	ranking INT,
+	readOnly INT,
+	faceDetectionFromCached INT,
+	faceDetectionRotationFromOriginal REAL,
+	editState INT,
+	thumbnailVersion INT,
+	thumbCacheIndex INT,
+	metaModDate REAL,
+	modificationDate REAL,
+	archiveFilename VARCHAR,
+	cameraModel VARCHAR,
+	isoSpeedRating INT,
+	flash INT,
+	shutterSpeed REAL,
+	aperture REAL,
+	focalLength REAL,
+	needsLocationLookup INT,
+	locationCountry VARCHAR,
+	locationState VARCHAR,
+	locationCounty VARCHAR,
+	locationCity VARCHAR,
+	locationPostalCode VARCHAR,
+	locationStreet VARCHAR,
+	gpsLatitude REAL,
+	gpsLongitude REAL,
+	manualLocation INT,
+	ocean INT,
+	country INT,
+	province INT,
+	county INT,
+	city INT,
+	neighborhood INT,
+	aoi INT,
+	poi INT,
+	namedPlace INT,
+	originalEvent INT,
+	event INT);
 
  CREATE TABLE SqPlace (primaryKey INTEGER PRIMARY KEY AUTOINCREMENT, defaultName INT, recordLocator INT, type INT, subtype INT, latitude REAL, longitude REAL, version REAL, parent INT, canCache INT);
 

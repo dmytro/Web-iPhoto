@@ -11,7 +11,7 @@ require 'yaml'
 
 module WIPhoto
   class WIPhoto
-    attr_accessor :config, :options
+    attr_accessor :config, :options, :parents
     
     def WIPhoto.main(argv)
       options = OpenStruct.new
@@ -68,13 +68,24 @@ module WIPhoto
       @config = YAML::load_file File.join( @rundir, 'config.yml')
       @albums = {} # 
       @photos = {} # { key: { path_to_image, path_to_thumb}}
+      @parents = {}
     end
 
+    def tree
+      @db.execute('SELECT PrimaryKey FROM sqAlbum WHERE Parent = 0 AND PrimaryKey < 900000').each {|x|
+        @parents[x[0]] = children x[0]
+      }
+      parents
+    end
+
+
     def albums
-      @db.execute(@config['albums']['names']).each { |primaryKey,name|
+      @db.execute(@config['albums']['names']).each { |primaryKey,name,parent,type|
         @albums[primaryKey] = {}
         @albums[primaryKey]['name'] = name
-        @albums[primaryKey]['photos'] = Array.new
+        @albums[primaryKey]['type'] = type
+        @albums[primaryKey]['parent'] = parent
+        @albums[primaryKey]['photos'] = []
         @db.execute(eval '"'+@config['albums']['photos']+'"').each { |photo|
           @albums[primaryKey]['photos'] << photo[0]
         }
@@ -112,6 +123,7 @@ module WIPhoto
     end
 
     def data
+      @parents = tree
       @albums = albums
       @photos = photos
       iPhotoLib = @options.iPhotoLib
@@ -120,7 +132,10 @@ module WIPhoto
         puts "Maybe you need to run #{@me} --do install first?\n\n"
         exit 1
       end
-      File.open(File.join(@datadir,"albums.js"), 'w'){|f| f.print "albums = " + @albums.to_json + ";\n" }
+      File.open(File.join(@datadir,"albums.js"), 'w'){|f| 
+        f.print "tree = #{@parents.to_json};\n"
+        f.print "albums = #{@albums.to_json};\n" 
+      }
       File.open(File.join(@datadir,"photos.js"), "w"){|f| f.print "photos= " + @photos.to_json + ";\n" }
     end
 
@@ -130,7 +145,19 @@ module WIPhoto
                '-x', @config['install']['exclude']
               ].join(' '))
       end
+    private 
+    
+    def children(id)
+      out = {}
+      @db.execute("SELECT PrimaryKey FROM sqAlbum WHERE Parent = #{id}").each { |x|
+        out[x[0]] = {}
+      }
+      out.keys.each { |x| out[x] = children x }
+      out
+    end
+    
   end
+
 end
 # ----------------------------------------------------------
 WIPhoto::WIPhoto.main(ARGV)

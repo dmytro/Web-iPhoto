@@ -1,12 +1,19 @@
 TO-DO:
 
-* Next/Prev buttons in albumThumb mode
 * Full "screen" mode (hide navigation panels)
 * Hide/show controls depending on mode
-* Folders of albums
-* Events. Event photos are not stored in SQLite, only XML in iPhoto 8.1. 
+* Nestes albums
+* Events. Event photos are not stored in SQLite, only XML in iPhoto
+  8.1. 
+* Background black-white
 
+Controls:
+ * Slideshow controls: stop, pause, forward, speed
+ * Thumb size 
+ * Next/Prev buttons in albumThumb mode
 
+Done
+-----
 * Paging for large albums - photo album with ~500 photos generates
   'Slow script' warning. (done 7/12/'09)
 * Slide-show - done, 
