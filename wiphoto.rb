@@ -1,7 +1,7 @@
 #!/opt/local/bin/ruby
 #!/usr/local/bin/ruby19
 
-version = "0.1a"
+version = "0.2"
 
 require 'json'
 require 'optparse'
