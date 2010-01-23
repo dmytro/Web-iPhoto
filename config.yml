@@ -14,6 +14,10 @@ albums:
 # primaryKey is from names: SQL
    photos: "SELECT sqPhotoInfo FROM AlbumsPhotosJoin where sqAlbum = #{primaryKey} ORDER BY photosOrder"
 
+   tree:
+     top: "SELECT PrimaryKey FROM sqAlbum WHERE Parent = 0 AND PrimaryKey < 999000"
+     nested: "SELECT PrimaryKey FROM sqAlbum WHERE Parent = #{id}"
+
 photos:
 #  photoKeys is result of albums SQL above
 # SqFileImage: photoKey,imageType -> primaryKey

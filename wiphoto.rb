@@ -72,7 +72,7 @@ module WIPhoto
     end
 
     def tree
-      @db.execute('SELECT PrimaryKey FROM sqAlbum WHERE Parent = 0 AND PrimaryKey < 900000').each {|x|
+      @db.execute(@config['albums']['tree']['top']).each {|x|
         @parents[x[0]] = children x[0]
       }
       parents
@@ -149,7 +149,7 @@ module WIPhoto
     
     def children(id)
       out = {}
-      @db.execute("SELECT PrimaryKey FROM sqAlbum WHERE Parent = #{id}").each { |x|
+      @db.execute(eval('"'+@config['albums']['tree']['nested']+'"')).each { |x|
         out[x[0]] = {}
       }
       out.keys.each { |x| out[x] = children x }
