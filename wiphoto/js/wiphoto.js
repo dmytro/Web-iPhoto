@@ -12,7 +12,9 @@ wiphoto = {
             '<IMG CLASS="menu_icon" SRC="./wiphoto/images/album.png">${albums[album]["name"]}</A></DIV>',
 
         'menuFolder':
-        '<DIV CLASS="menuItem"><A ID="navMenu_${album}" HREF="JAVASCRIPT:wiphoto.photo.thumb.show(${album},0);">'+
+        '<DIV CLASS="menuItem">'+
+            '<A ID="navMenu_${album}" HREF="JAVASCRIPT:wiphoto.menu.item.hide(${album});">'+
+            '<IMG ID="closeTriangle_${album}" CLASS="menuOpen" SRC="./wiphoto/images/open.png">'+
             '<IMG CLASS="menu_icon" SRC="./wiphoto/images/folder.png">${albums[album]["name"]}</A></DIV>',
         // ----------------------------------------
         'albumThumb':
@@ -92,25 +94,44 @@ wiphoto = {
             }
         }
     },
-    menu : { 
-        show: function () { // wiphoto.menu.show
-            $('albumdata').update('')
-            for (var node in tree) wiphoto.menu.item (node,tree[node],0)
+    menu : { // wiphoto.menu
+        init: function () { // wiphoto.menu.show
+            $('albumMenu').update('')
+            for (var node in tree) wiphoto.menu.item.init (node,tree[node],0, $("albumMenu"))
+            wiphoto.album.current = wiphoto.album.keys[0]
         },
-        item: function (node,arr,indent) { // wiphoto.menu.item
-            parse = TrimPath.parseTemplate
-            item = new Element('div')
-            with (wiphoto) {
-                if (!albums[node]) { return }
-                if (albums[node]['type'] == 'Album') {
-                    item.update(parse(template.menuAlbum).process({'album': node, 'albums': albums}))
-    	            $('albumdata').insert(item)
-                } else {
-                    item.update(parse(template.menuFolder).process({'album': node, 'albums': albums}))
-     	            $('albumdata').insert(item)
-                    for (var sub in arr) menu.item(sub,arr[sub],indent+1)
+        item: { // wiphoto.menu.item
+            init: function (node,arr,indent,container) { // wiphoto.menu.item.init
+                parse = TrimPath.parseTemplate
+                item = new Element('div')
+                with (wiphoto) {
+                    if (!albums[node]) { return }
+                    wiphoto.album.keys.push(node)
+                    if (albums[node]['type'] == 'Album') {
+                        item.update(parse(template.menuAlbum).process({'album': node, 'albums': albums}))
+    	                container.insert(item)
+                    } else {
+                        // nested group (folder)
+                        item.update(parse(template.menuFolder).process({'album': node, 'albums': albums}))
+     	                container.insert(item)
+                        group = new Element('div', {"id": "menuGroup_" + node}).setStyle({ display: 'block'}); 
+                        container.insert(group)
+                        for (var sub in arr) menu.item.init(sub,arr[sub],indent+1,group)
+                    }
+                    $("navMenu_"+node).style.paddingLeft = indent * 10;
                 }
-                $("navMenu_"+node).style.paddingLeft = indent * 10;
+            },
+            hide: function (group) { // wiphoto.menu.item.hide
+                elem = $("menuGroup_" + group)
+                img = $("closeTriangle_"+group)
+                console.log(elem.style.display)
+                if (elem.style.display == 'block') {
+                    elem.style.display = 'none'
+                    img.src = "./wiphoto/images/closed.png"
+                } else {
+                    elem.style.display = 'block'
+                    img.src = "./wiphoto/images/open.png"
+                }
             }
         }
     },
@@ -134,7 +155,7 @@ wiphoto = {
  	        $('viewPanel').innerHTML = TrimPath.parseTemplate(template.photo).process({'dim':dim, 'key':key, 'photos':photos})
             }
         },
-        preload: function(i) {
+        preload: function(i) { // wiphoto.photo.preload
             key = albums[wiphoto.album.current].photos[i]
             wiphoto.preload[key] = new Image ()
             wiphoto.preload[key].src = photos[key] ? photos[key].image.path : ''
@@ -150,10 +171,12 @@ wiphoto = {
                 a = a || wiphoto.album.current
                 t = (t==0) ? 0 : t || wiphoto.photo.current
                 with(wiphoto.photo.thumb) {
-                    if ($(_selected)) $(_selected).removeClassName('selected')
-                    _selected = 'thumb_'+a+'_'+t
-                    if ($(_selected)) $(_selected).addClassName('selected')
-                    $(_selected).scrollIntoView(false)
+                    if ($(_selected)) {
+                        $(_selected).removeClassName('selected')
+                        _selected = 'thumb_'+a+'_'+t
+                        $(_selected).addClassName('selected')
+                        $(_selected).scrollIntoView(false)
+                    }
                     if (wiphoto.mode('thumb')) {
                         wiphoto.photo.current = t 
                         wiphoto.photo.preload(t)
@@ -396,11 +419,11 @@ wiphoto = {
     // --------------------------------------------------------------------------------
     function init() {
         document.onkeyup = KeyCheck
-        with(wiphoto.album) {
-            for (var k in albums) keys.push(k)
-            current = keys[0]
-            thumb.show()
-        }
-        wiphoto.menu.show()
-
+//        with(wiphoto.album) {
+     //       for (var k in albums) keys.push(k)
+//            current = keys[0]
+//            thumb.show()
+//        }
+        wiphoto.menu.init()
+        wiphoto.album.thumb.show()
     }

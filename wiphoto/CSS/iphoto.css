@@ -40,23 +40,30 @@ a {
     margin-right: 5px;
 }
 
+.menuOpen {
+    padding: 3px;
+    padding-right: 5px;
+}
+
+.menuOpenLink {
+    display: inline;
+}
+
 #navigation a {
  display: block;
-/* min-height: 12pt; */
+ min-height: 12pt; 
  text-decoration: none;
  font-size: 8pt;
  text-indent: 1.5em;
- margin: 0px;
+ text-shadow: 2px 1px #C1D1E2;
+ margin: 0;
  padding: 0;
- padding-bottom: 2px;
 }
 
 #navigation .selected {
  background-image:url("../images/SelectedFill.png");
  background-repeat:repeat-x;
  color: white;
- padding-top: 2;
- padding-bottom: 2;
  font-style: bold;
  text-shadow: 2px 1px #000;
 }
