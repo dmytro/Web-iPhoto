@@ -2,7 +2,7 @@
 install:
   zip: install.zip
   files:   wiphoto/CSS wiphoto/images wiphoto/index.html wiphoto/js
-  exclude: \*~ \*/albums.js \*/photos.js
+  exclude: \*~ \*/albums.js \*/photos.js \*/.DS_Store \*/\#\*
 
 albums:
    names: SELECT primaryKey, Name, Parent,ClassName FROM SqAlbum WHERE primaryKey < 999000

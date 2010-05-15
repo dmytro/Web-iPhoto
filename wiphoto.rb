@@ -138,6 +138,10 @@ module WIPhoto
     end
 
     def mkzip
+#       p (['zip', '-r', 
+#                @config['install']['zip'], @config['install']['files'],
+#                '-x', @config['install']['exclude']
+#               ].join(' '))
       system (['zip', '-r', 
                @config['install']['zip'], @config['install']['files'],
                '-x', @config['install']['exclude']

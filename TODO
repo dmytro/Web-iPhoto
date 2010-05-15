@@ -1,21 +1,53 @@
 TO-DO:
 
+Look
+----------
 * Full "screen" mode (hide navigation panels)
 * Hide/show controls depending on mode
-* Nestes albums
-* Events. Event photos are not stored in SQLite, only XML in iPhoto
-  8.1. 
-* Background black-white
+* Events. Event are not stored in SQLite, only XML in iPhoto 8.1.
+* Background setting black-white
+
+* Onscreen keystrokes help
+
+* Long album names wrap into next line - cut names o fit panel
+
+* add CSS for iPhone (whole new sub-project?)
+
+
+
+Navigation
+----------
+* Navigation in album thumbs mode is inconsistent: click on albums shows 
+  album photo thummbs, click on flders: does nothing.
+* Keys navigation in left side panel:
+
+  - left/right key on folder should close/expand folder instead on
+    moving up down
+
+  - when folder is highligted in left panel: all abums in the folder
+    should become selected.
+
 
 Controls:
- * Slideshow controls: stop, pause, forward, speed
+----------
+ * Slideshow controls: stop, pause, forward, speed selection
+ * On-screen controls (transparent auto-hide) for slideshows 
+   and "full-screen" mode
  * Thumb size 
  * Next/Prev buttons in albumThumb mode
+ 
+FIX:
+
+* Remove ugly references up "../" for all photos and thumbnails. Now
+  index.html is located in wiphoto/ dir, so need to go upo one
+  directory for imgage URL. Ugly.
+
 
 Done
 -----
+* Nestes albums [as of v0.2]
 * Paging for large albums - photo album with ~500 photos generates
   'Slow script' warning. (done 7/12/'09)
 * Slide-show - done, 
-  TODO: toggle() -- done 7/12/'09
+* toggle() (slideshow pause/continue) -- done 7/12/'09
 

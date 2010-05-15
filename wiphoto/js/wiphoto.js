@@ -7,29 +7,28 @@ wiphoto = { defaults: { navigation_width: 200, thumb_size:120, slideShowSpeed:1,
 wiphoto = {
     defaults: wiphoto.defaults,
     template: {
-        'menuAlbum':
+        menuAlbum:
         '<DIV CLASS="menuItem"><A ID="navMenu_${album}" HREF="JAVASCRIPT:wiphoto.photo.thumb.show(${album},0);">'+
-            '<IMG CLASS="menu_icon" SRC="./wiphoto/images/album.png">${albums[album]["name"]}</A></DIV>',
+            '<IMG CLASS="menu_icon" SRC="./images/album.png">${albums[album]["name"]}</A></DIV>',
 
-        'menuFolder':
+        menuFolder:
         '<DIV CLASS="menuItem">'+
-            '<A ID="navMenu_${album}" HREF="JAVASCRIPT:wiphoto.menu.item.hide(${album});">'+
-            '<IMG ID="closeTriangle_${album}" CLASS="menuOpen" SRC="./wiphoto/images/open.png">'+
-            '<IMG CLASS="menu_icon" SRC="./wiphoto/images/folder.png">${albums[album]["name"]}</A></DIV>',
+            '<A ID="navMenu_${album}" HREF="JAVASCRIPT:wiphoto.menu.item.toggle(${album});">'+
+            '<IMG ID="closeTriangle_${album}" CLASS="menuOpen" SRC="./images/open.png">'+
+            '<IMG CLASS="menu_icon" SRC="./images/folder.png">${albums[album]["name"]}</A></DIV>',
         // ----------------------------------------
-        'albumThumb':
-        
+        albumThumb:
         '<A id="aThumbHREF_${album}" HREF="JAVASCRIPT:wiphoto.photo.thumb.show(${album});">'+
             '<SPAN ID="albumThumb_${album}" CLASS="albumThumb">'+
-            '<IMG ID="albumThumb_img_${album}" CLASS="albumThumb_img" WIDTH="${dim[0]}" HEIGHT="${dim[1]}" SRC="${photos[albums[album]["photos"][0]]["thumb"]["path"]}">'+
+            '<IMG ID="albumThumb_img_${album}" CLASS="albumThumb_img" WIDTH="${dim[0]}" HEIGHT="${dim[1]}" SRC="../${photos[albums[album]["photos"][0]]["thumb"]["path"]}">'+
             '<DIV STYLE="WIDTH: ${wiphoto.photo.thumb.size+10}">${albums[album]["name"]} (${albums[album]["photos"].length})</DIV></SPAN></A>',
         // ----------------------------------------
-        'thumb':
+        thumb:
         '<A id="t_href_${album}_${i}" HREF="JAVASCRIPT:wiphoto.photo.setmode(${album},${i});">'+
-            '<IMG ID="thumb_${album}_${i}" CLASS="thumb" WIDTH="${dim[0]}" HEIGHT="${dim[1]}" SRC="${photos[key]["thumb"]["path"]}"></A>',
+            '<IMG ID="thumb_${album}_${i}" CLASS="thumb" WIDTH="${dim[0]}" HEIGHT="${dim[1]}" SRC="../${photos[key]["thumb"]["path"]}"></A>',
         // ----------------------------------------
-        'photo':
-        '<CENTER><IMG WIDTH="${dim[0]}" HEIGHT="${dim[1]}" NAME="SlideShow" ID="showPhoto" SRC="${photos[key]["image"]["path"]}"></CENTER>'
+        photo:
+        '<CENTER><IMG WIDTH="${dim[0]}" HEIGHT="${dim[1]}" NAME="SlideShow" ID="showPhoto" SRC="../${photos[key]["image"]["path"]}"></CENTER>'
     },
     // ------------------------------------------------------------
     album: {
@@ -121,16 +120,23 @@ wiphoto = {
                     $("navMenu_"+node).style.paddingLeft = indent * 10;
                 }
             },
-            hide: function (group) { // wiphoto.menu.item.hide
+            show: function (elem,url) {
+                elem.style.display = 'block'
+                url = "./images/open.png"
+            },
+            hide: function (elem,url) {
+                elem.style.display = 'none'
+                url = "./images/closed.png"
+            },
+            toggle: function (group) { // wiphoto.menu.item.toggle
                 elem = $("menuGroup_" + group)
-                img = $("closeTriangle_"+group)
-                console.log(elem.style.display)
-                if (elem.style.display == 'block') {
-                    elem.style.display = 'none'
-                    img.src = "./wiphoto/images/closed.png"
-                } else {
-                    elem.style.display = 'block'
-                    img.src = "./wiphoto/images/open.png"
+                url = $("closeTriangle_"+group).src
+                with (wiphoto.menu.item) {
+                    if (elem.style.display == 'block') {
+                        hide(elem,url)
+                    } else {
+                        show(elem,url)
+                    }
                 }
             }
         }
@@ -141,6 +147,7 @@ wiphoto = {
     photo: { // wiphoto.photo
         current: 0,
         show: function (a,p) { // wiphoto.photo.show
+            // paramaters: a- album, p- photo. INT.
             with(wiphoto){
                 photo.current = (p==0) ?0 :(p || photo.current)
                 album.current = a || album.current
@@ -158,25 +165,30 @@ wiphoto = {
         preload: function(i) { // wiphoto.photo.preload
             key = albums[wiphoto.album.current].photos[i]
             wiphoto.preload[key] = new Image ()
-            wiphoto.preload[key].src = photos[key] ? photos[key].image.path : ''
+            wiphoto.preload[key].src = photos[key] ? "../"+photos[key].image.path : ''
         },
         last:    function () { return (albums[wiphoto.album.current].photos.length-1) },
         next:    function () { with(wiphoto.photo) {return ( (current == last()) ? 0 :current+1 ) }},
         prev:    function () { with(wiphoto.photo) {return ( (current == 0) ? last():current-1 ) }},
         setmode: function(a,i)  { wiphoto.mode('photo'); show(a,i) },
+        // ------------------------------------------------------------
+        // THUMBS
         thumb: { // wiphoto.photo.thumb
             size: wiphoto.defaults.thumb_size,
             _selected: 0,
             selected: function(a,t) { // wiphoto.photo.thumb.selected
+                // parameters:
+                // a - album
+                // t - thumb
                 a = a || wiphoto.album.current
                 t = (t==0) ? 0 : t || wiphoto.photo.current
                 with(wiphoto.photo.thumb) {
                     if ($(_selected)) {
                         $(_selected).removeClassName('selected')
-                        _selected = 'thumb_'+a+'_'+t
-                        $(_selected).addClassName('selected')
-                        $(_selected).scrollIntoView(false)
                     }
+                    _selected = 'thumb_'+a+'_'+t
+                    $(_selected).addClassName('selected')
+                    $(_selected).scrollIntoView(false)
                     if (wiphoto.mode('thumb')) {
                         wiphoto.photo.current = t 
                         wiphoto.photo.preload(t)
@@ -184,9 +196,12 @@ wiphoto = {
                     return (_selected)
                 }
             },
-            timeout: false,
+
+            timeout: false,  // timeout used as delay for the thumbs showPart function.
+
             // Load thumbs of an album in smaller pieces if album has
-            // too many pictures. To avould JS script timeout.
+            // too many pictures. Workaround for JS script timeout.
+
             showPart: function(from,n) { // wiphoto.photo.thumb.showPart
                 with(wiphoto) {
                     a = album.current
@@ -210,7 +225,9 @@ wiphoto = {
                         wiphoto.photo.thumb.timeout = setTimeout('wiphoto.photo.thumb.showPart('+s+','+nextload+')',delay*1000)
                 }
             },
-
+            // Show page with thumbs.
+            // calls showPart to show pages with many pictures
+            // ------------------------------------------------------------
             show: function(a,t) { //wiphoto.photo.thumb.show
                 with(wiphoto) {
                     mode('thumb');
