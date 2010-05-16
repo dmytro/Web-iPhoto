@@ -148,6 +148,7 @@ wiphoto = {
     //
     photo: { // wiphoto.photo
         current: 0,
+        over: false, 
         show: function (a,p) { // wiphoto.photo.show
             // paramaters: a- album, p- photo. INT.
             with(wiphoto){
@@ -162,6 +163,13 @@ wiphoto = {
                 key = albums[album.current].photos[photo.current];
 	        dim = fitInto(w,h,photos[key]['image']);
  	        $('viewPanel').innerHTML = TrimPath.parseTemplate(template.photo).process({'dim':dim, 'key':key, 'photos':photos})
+//                 with (wiphoto.photo) {
+//                     if (over == 1) {
+//                         wiphoto.bezel.show ("bezel-loopFromBeginning.png"); over = false
+//                     } else if ( over == -1) {
+//                         wiphoto.bezel.show ("bezel-loopFromEnd.png"); over = false
+//                     }
+//                 }
             }
         },
         preload: function(i) { // wiphoto.photo.preload
@@ -170,8 +178,10 @@ wiphoto = {
             wiphoto.preload[key].src = photos[key] ? "../"+photos[key].image.path : ''
         },
         last:    function () { return (albums[wiphoto.album.current].photos.length-1) },
-        next:    function () { with(wiphoto.photo) {return ( (current == last()) ? 0 :current+1 ) }},
-        prev:    function () { with(wiphoto.photo) {return ( (current == 0) ? last():current-1 ) }},
+//         next:    function () { with(wiphoto.photo) {if (current == last()) { over = 1; return 0} else { return current+1 } }},
+//         prev:    function () { with(wiphoto.photo) {if (current == 0) { over = -1; return last() } else { current-1 }}},
+        next:    function () { with(wiphoto.photo) {return (current == last() ? 0 : current+1 ) }},
+        prev:    function () { with(wiphoto.photo) {return (current == 0 ? over = -1 : current-1 )}},
         setmode: function(a,i)  { wiphoto.mode('photo'); show(a,i) },
         // ------------------------------------------------------------
         // THUMBS
@@ -325,19 +335,13 @@ wiphoto = {
             }
         },
         prev_key: function () {
-            with (wiphoto) {
-                slides.prev()
-                bezel.show("bezel-play_prev.png")
-            }
+            with (wiphoto) { slides.prev(); bezel.show("bezel-play_prev.png") }
         },
         prev: function () {
             with(wiphoto.photo) {current = current -2; wiphoto.slides.next() }
         },
         next_key: function () {
-            with (wiphoto) {
-                slides.next()
-                bezel.show("bezel-play_next.png")
-            }
+            with (wiphoto) { slides.next(); bezel.show("bezel-play_next.png") }
         },
         next: function (){
             with(wiphoto.slides) {
@@ -359,7 +363,10 @@ wiphoto = {
                         document.images.SlideShow.src = wiphoto.preload[data[current]].src
                     else preload(current)
                     
-                    if (++current > (data.length-1)) current = 0
+                    if (++current > (data.length-1)) { 
+                        current = 0
+                        wiphoto.bezel.show("bezel-loopFromBeginning.png")
+                    }
                     timeout = setTimeout('wiphoto.slides.next()', speed*1000)
                 }
             }
@@ -395,7 +402,7 @@ wiphoto = {
                     $("bezel").src = "./images/" + i //FIXME: remove './images/'
                 } else {
                     elem = new Element('span')
-                    elem.update(TrimPath.parseTemplate(wiphoto.template.bezel).process({'image':i,'opacity':0, "alpha":0}))
+                    elem.update(TrimPath.parseTemplate(wiphoto.template.bezel).process({'image':i,'opacity':0, "alpha":0, "dim": dim }))
                     $('viewPanel').insert(elem)
                 }
                 $("bezel").setStyle({left: ($('viewPanel').clientWidth -$("bezel").clientWidth)/2});
