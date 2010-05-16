@@ -2,7 +2,7 @@
 keyCode = { 32:'space',33:'pgup',34:'pgdown',35:'end',36:'home',37:'left',38:'up',39:'right',40:'down',27:'escape',9:'tab',13:'enter',48:'0', 83:'s' }
 
 // Define defaults here, so that can use them later on
-wiphoto = { defaults: { navigation_width: 200, thumb_size:120, slideShowSpeed:1, partload: { startat: 30, firstload: 20, nextload: 10, delay: 0.1} } }
+wiphoto = { defaults: { navigation_width: 200, thumb_size:120, slideShowSpeed:10, partload: { startat: 30, firstload: 20, nextload: 10, delay: 0.1} } }
 
 wiphoto = {
     defaults: wiphoto.defaults,
@@ -28,7 +28,9 @@ wiphoto = {
             '<IMG ID="thumb_${album}_${i}" CLASS="thumb" WIDTH="${dim[0]}" HEIGHT="${dim[1]}" SRC="../${photos[key]["thumb"]["path"]}"></A>',
         // ----------------------------------------
         photo:
-        '<CENTER><IMG WIDTH="${dim[0]}" HEIGHT="${dim[1]}" NAME="SlideShow" ID="showPhoto" SRC="../${photos[key]["image"]["path"]}"></CENTER>'
+        '<CENTER><IMG WIDTH="${dim[0]}" HEIGHT="${dim[1]}" NAME="SlideShow" ID="showPhoto" SRC="../${photos[key]["image"]["path"]}"></CENTER>',
+        bezel:
+        '<IMG SRC="./images/${i}" ID="bezel" STYLE="opacity:0.3;filter:alpha(opacity=30)">'
     },
     // ------------------------------------------------------------
     album: {
@@ -302,6 +304,7 @@ wiphoto = {
                 data = albums[wiphoto.album.current].photos;
                 preload(0)
                 next();
+                wiphoto.bezel.show("bezel-play.png")
             }
         },
         clear: function() {
@@ -364,6 +367,37 @@ wiphoto = {
             
         }
         
+    },
+    // Show semi-transparrent hints on user actions
+    bezel: {
+        speed: 3,
+        step: 0.02,
+        delay: 1000,
+        opacity: 0,
+        timeout: false, // timeout value for show/hide
+        show: function(i) {
+            // parameters: i - image to show, t - time to keep on screen
+            with(wiphoto.bezel) {
+                elem = new Element('span')
+                elem.update(TrimPath.parseTemplate(wiphoto.template.bezel).process({'i':i,'opacity':0, "alpha":0}))
+                $('viewPanel').insert(elem)
+                $("bezel").setStyle({left: ($('viewPanel').clientWidth -$("bezel").clientWidth)/2});
+                $("bezel").setStyle({bottom: $('viewPanel').clientHeight /5});
+                opacity = 0
+                setTimeout('wiphoto.bezel.fade('+step+')', 0);
+                setTimeout('wiphoto.bezel.fade('+-step+')', Math.max(delay, speed/step+step));
+            }
+        },
+        fade: function (step) {
+            with(wiphoto) {
+                bezel.opacity = bezel.opacity + step;
+                if ((step > 0 && bezel.opacity < 1 ) || (step < 0 && bezel.opacity > 0 )) { 
+                    $("bezel").setStyle({opacity: bezel.opacity});
+                    $("bezel").setStyle({filter:   "alpha(opacity="+ bezel.opacity +")"});
+                    setTimeout('wiphoto.bezel.fade('+step+')', bezel.speed);
+                } 
+            }
+        }
     }
 }
     

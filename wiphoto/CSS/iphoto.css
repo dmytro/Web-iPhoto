@@ -1,6 +1,18 @@
 
 img { border: 0; }
 
+/*
+<img src="klematis.jpg" width="150" height="113" alt="klematis"
+style="opacity:0.4;filter:alpha(opacity=40)" />
+*/
+
+#bezel {
+    position: absolute;
+    left: 50%;
+    top: 70%;
+    width: 200;
+}
+
 a {
  color: #000;
  text-decoration: none;
