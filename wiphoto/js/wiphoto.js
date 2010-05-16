@@ -163,13 +163,6 @@ wiphoto = {
                 key = albums[album.current].photos[photo.current];
 	        dim = fitInto(w,h,photos[key]['image']);
  	        $('viewPanel').innerHTML = TrimPath.parseTemplate(template.photo).process({'dim':dim, 'key':key, 'photos':photos})
-//                 with (wiphoto.photo) {
-//                     if (over == 1) {
-//                         wiphoto.bezel.show ("bezel-loopFromBeginning.png"); over = false
-//                     } else if ( over == -1) {
-//                         wiphoto.bezel.show ("bezel-loopFromEnd.png"); over = false
-//                     }
-//                 }
             }
         },
         preload: function(i) { // wiphoto.photo.preload
@@ -320,7 +313,7 @@ wiphoto = {
         clear: function() {
             clearTimeout(wiphoto.slides.timeout)
         },
-        stop: function (nobezel) {
+        stop: function () {
             with(wiphoto.slides) {
                 data = [];
                 clear()
