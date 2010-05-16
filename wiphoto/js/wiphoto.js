@@ -2,15 +2,17 @@
 keyCode = { 32:'space',33:'pgup',34:'pgdown',35:'end',36:'home',37:'left',38:'up',39:'right',40:'down',27:'escape',9:'tab',13:'enter',48:'0', 83:'s' }
 
 // Define defaults here, so that can use them later on
-wiphoto = { defaults: { navigation_width: 200, thumb_size:120, slideShowSpeed:10, partload: { startat: 30, firstload: 20, nextload: 10, delay: 0.1} } }
+wiphoto = { defaults: { navigation_width: 200, thumb_size:120, slideShowSpeed:3, partload: { startat: 30, firstload: 20, nextload: 10, delay: 0.1} } }
 
 wiphoto = {
     defaults: wiphoto.defaults,
+    // ------------------------------------------------------------
     template: {
+        
         menuAlbum:
         '<DIV CLASS="menuItem"><A ID="navMenu_${album}" HREF="JAVASCRIPT:wiphoto.photo.thumb.show(${album},0);">'+
             '<IMG CLASS="menu_icon" SRC="./images/album.png">${albums[album]["name"]}</A></DIV>',
-
+        
         menuFolder:
         '<DIV CLASS="menuItem">'+
             '<A ID="navMenu_${album}" HREF="JAVASCRIPT:wiphoto.menu.item.toggle(${album});">'+
@@ -30,9 +32,9 @@ wiphoto = {
         photo:
         '<CENTER><IMG WIDTH="${dim[0]}" HEIGHT="${dim[1]}" NAME="SlideShow" ID="showPhoto" SRC="../${photos[key]["image"]["path"]}"></CENTER>',
         bezel:
-        '<IMG SRC="./images/${i}" ID="bezel" STYLE="opacity:0.3;filter:alpha(opacity=30)">'
+        '<IMG SRC="./images/${image}" ID="bezel" STYLE="opacity:${opacity};filter:alpha(opacity=${alpha})">'
     },
-    // ------------------------------------------------------------
+
     album: {
         current: 0,
         keys: [],
@@ -77,11 +79,9 @@ wiphoto = {
                 with(wiphoto) {
                     mode('albumThumb');
                     parse = TrimPath.parseTemplate
-
                     $('viewPanel').update('')
 
 	            for (var a in albums) {
-
                         link = new Element('span')
                         X = photo.thumb.size
                         dim = photos[albums[a]['photos'][0]] ? fitInto( X, X, photos[albums[a]['photos'][0]]['thumb']) : [0,0];
@@ -282,7 +282,7 @@ wiphoto = {
                 wiphoto.photo.current = 0
                 break;
             }
-            if(mode != 'slide') wiphoto.slides.stop()
+            if(mode != 'slide' && wiphoto.slides.running) wiphoto.slides.stop()
             if(mode != 'thumb') clearTimeout(wiphoto.photo.thumb.timeout)
         }
         return (wiphoto._mode)
@@ -310,11 +310,12 @@ wiphoto = {
         clear: function() {
             clearTimeout(wiphoto.slides.timeout)
         },
-        stop: function () {
+        stop: function (nobezel) {
             with(wiphoto.slides) {
                 data = [];
                 clear()
                 running = false
+                wiphoto.bezel.show("bezel-pause.png")
             }
         },
         toggle: function () {
@@ -323,8 +324,20 @@ wiphoto = {
                 else with(wiphoto) play(album.current, photo.current)
             }
         },
+        prev_key: function () {
+            with (wiphoto) {
+                slides.prev()
+                bezel.show("bezel-play_prev.png")
+            }
+        },
         prev: function () {
             with(wiphoto.photo) {current = current -2; wiphoto.slides.next() }
+        },
+        next_key: function () {
+            with (wiphoto) {
+                slides.next()
+                bezel.show("bezel-play_next.png")
+            }
         },
         next: function (){
             with(wiphoto.slides) {
@@ -378,9 +391,13 @@ wiphoto = {
         show: function(i) {
             // parameters: i - image to show, t - time to keep on screen
             with(wiphoto.bezel) {
-                elem = new Element('span')
-                elem.update(TrimPath.parseTemplate(wiphoto.template.bezel).process({'i':i,'opacity':0, "alpha":0}))
-                $('viewPanel').insert(elem)
+                if ($("bezel")) { 
+                    $("bezel").src = "./images/" + i //FIXME: remove './images/'
+                } else {
+                    elem = new Element('span')
+                    elem.update(TrimPath.parseTemplate(wiphoto.template.bezel).process({'image':i,'opacity':0, "alpha":0}))
+                    $('viewPanel').insert(elem)
+                }
                 $("bezel").setStyle({left: ($('viewPanel').clientWidth -$("bezel").clientWidth)/2});
                 $("bezel").setStyle({bottom: $('viewPanel').clientHeight /5});
                 opacity = 0
@@ -458,14 +475,17 @@ wiphoto = {
                     break;
                 case 'space':
                 case 'enter': toggle(); break;
-                case 'right': show(null, window.next()); break;
-                case 'left':  show(null, window.prev()); break;
+//                case 'right': show(null, window.next()); break;
+//                case 'left':  show(null, window.prev()); break;
+                case 'right': next_key(); break;
+                case 'left':  prev_key(); break;
                 }
             }
         }
         return (true);
     }
     
+//    inc("wiphoto.template.js");
 
     // --------------------------------------------------------------------------------
     function init() {
