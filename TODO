@@ -42,6 +42,11 @@ FIX:
   index.html is located in wiphoto/ dir, so need to go upo one
   directory for imgage URL. Ugly.
 
+Installation
+------------
+* chmod on directories with photos and all under wiphoto.
+
+* Data and Data.noindex?
 
 Done
 -----
