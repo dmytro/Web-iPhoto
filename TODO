@@ -45,8 +45,21 @@ FIX:
 Installation
 ------------
 * chmod on directories with photos and all under wiphoto.
+When run wiphoto from web server need to set peromititons on
+directories, so that wiphoto data and photo files are readable by web
+server. This is a secutory issue as need to make all files world
+readdable. Need to find better solution.
+ chmod a+rx -R wiphoto/
+ chmod a+rx -R Data
+ chmod a+rx Data
+ chmod a+rx -R Data
+ chmod a+rx -R Modified/
 
-* Data and Data.noindex?
+
+* What's the difference between Data and Data.noindex? Din not work on
+  another installation of iPhoto, where Data wa not directory but file
+  with path to Data.noindex in it. Fixed by remowing  Data.noindex file
+  and creating symlink.
 
 Done
 -----

@@ -96,7 +96,7 @@ module WIPhoto
       @albums.keys.each { |albumid|
         photos.concat @albums[albumid]['photos']
       }
-      photos.uniq!.each { |photoKey|
+      photos.uniq.each { |photoKey|
         @photos[photoKey] = {}
         ['thumb','image'].each { |l|
           @photos[photoKey][l] = {}
