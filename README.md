@@ -1,6 +1,6 @@
 
-wiPhoto
-==========
+wiPhoto or Web 
+=================
 
 Web iPhoto (or wiPhoto) is a client side web album application. Main
 use for it is thought to browse iPhoto picture collections in web
@@ -51,54 +51,52 @@ Data formats
 
 albums.js contains JSON formatted hash:
 
-albums =
-   {
-    "<ALBUM_INDEX>":{"name":"<Album_Name>",
-         "photos":[ <ALBUM_PHOTOS_KEYS> ]
-       },
-
-    };
+    albums =
+       {
+        "<ALBUM_INDEX>":{"name":"<Album_Name>",
+             "photos":[ <ALBUM_PHOTOS_KEYS> ]
+           },
+        };
 
 Where
 
-        <ALBUM_INDEX>: Integer
-        <Album_Name>: string
-        <ALBUM_PHOTOS_KEYS>: array of Integers
+* <ALBUM_INDEX>: Integer
+* <Album_Name>: string
+* <ALBUM_PHOTOS_KEYS>: array of Integers
 
 
 
-photos.js contains JSON formatted data structure, which is description
+`photos.js` contains JSON formatted data structure, which is description
 of photo image files. 
 
-photos= 
-  {
-      "982": <--- photo key
-      {"thumb": {
-                  "path":"Data\/2009\/Sep 22, 2009\/IMG_2626.jpg",
-                  "dim":[360.0,240.0] <-- width,height
-                 },
-       "image":{
-                 "path":"Originals\/2009\/Sep 22, 2009\/IMG_2626.JPG", 
-                 "dim":[3072.0,2048.0]
-                }
-                
-       }, ...
-  };
+    photos= 
+      {
+          "982": <--- photo key
+          {"thumb": {
+                      "path":"Data/2009/Sep 22, 2009/IMG_2626.jpg",
+                      "dim":[360.0,240.0] <-- width,height
+                     },
+           "image":{
+                     "path":"Originals/2009/Sep 22, 2009/IMG_2626.JPG", 
+                     "dim":[3072.0,2048.0]
+                    }
+           }, ...
+      };
 
-Each photo key corresponds to key in <ALBUM_PHOTOS_KEYS> array in
-albums.js <ALBUM_INDEX> and photo key can have any integer value.
+Each photo key corresponds to key in `<ALBUM_PHOTOS_KEYS>` array in
+`albums.js` `<ALBUM_INDEX>` and photo key can have any integer value.
 Indexes should be unique, specific value does not matter.
 
-Path should be relative to index.html file
+Path should be relative to `index.html` file
 
 Design
 ----------
 
-Following goals were pursued in development of wiPhoto :
+Following goals were pursued in development of _wiPhoto_ :
 
-* Very minimal index.html file, that does not change.
+* Very minimal static index.html file, does not change.
 
-* All data are stored in auto-generated JSON files - albums.js and
+* All data are stored in script-generated JSON files - albums.js and
   photos.js;
 
 * Look and feel heavily relies on CSS instead on HTML markup; 
@@ -109,6 +107,7 @@ Following goals were pursued in development of wiPhoto :
 
 Author
 --------------------
+
 Dmytro Kovalov,
 dmytro.kovalov@gmail.com
 2009
