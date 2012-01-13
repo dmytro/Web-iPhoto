@@ -95,12 +95,19 @@ wiphoto = {
             }
         }
     },
+    // Menu is left navigation panel. Shows albums or foldable nested
+    // folders with albums. Navigation albums is either using mouse
+    // (click on album to open thumbnains in right panel, click on
+    // album thumbnail for the same); or keyboard (up/down - move from
+    // album to album, left/right (TODO) - fold/unfold folder).
     menu : { // wiphoto.menu
         init: function () { // wiphoto.menu.show
             $('albumMenu').update('')
             for (var node in tree) wiphoto.menu.item.init (node,tree[node],0, $("albumMenu"))
             wiphoto.album.current = wiphoto.album.keys[0]
         },
+        // item can be either album or folder. Depends on data
+        // attribute 'type' - Album or otherwise.
         item: { // wiphoto.menu.item
             init: function (node,arr,indent,container) { // wiphoto.menu.item.init
                 parse = TrimPath.parseTemplate
