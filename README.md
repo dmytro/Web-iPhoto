@@ -1,5 +1,5 @@
 
-wiPhoto or Web 
+wiPhoto or Web-iPhoto
 =================
 
 Web iPhoto (or wiPhoto) is a client side web album application. Main
@@ -10,7 +10,7 @@ Why would somebody need tool like this? There could be several reasons:
 
 - I want to present my iPhoto collection on the web for me or other to
   see it. (Attention: wiPhoto does not offer any means of security, it
-  not in the scope of this program);
+  is not in the scope of this program);
 
 - I want to make backup of my iPhoto library, burn it on CD or DVD and
   be able to browse it without need to re-import everything back into
@@ -53,16 +53,16 @@ albums.js contains JSON formatted hash:
 
     albums =
        {
-        "<ALBUM_INDEX>":{"name":"<Album_Name>",
-             "photos":[ <ALBUM_PHOTOS_KEYS> ]
+        "ALBUM_INDEX":{"name":"Album_Name",
+             "photos":[ ALBUM_PHOTOS_KEYS ]
            },
         };
 
 Where
 
-* <ALBUM_INDEX>: Integer
-* <Album_Name>: string
-* <ALBUM_PHOTOS_KEYS>: array of Integers
+* ALBUM_INDEX: Integer
+* Album_Name: string
+* ALBUM_PHOTOS_KEYS: array of Integers
 
 
 
@@ -74,7 +74,7 @@ of photo image files.
           "982": <--- photo key
           {"thumb": {
                       "path":"Data/2009/Sep 22, 2009/IMG_2626.jpg",
-                      "dim":[360.0,240.0] <-- width,height
+                      "dim":[360.0,240.0] -- width,height
                      },
            "image":{
                      "path":"Originals/2009/Sep 22, 2009/IMG_2626.JPG", 
@@ -83,8 +83,8 @@ of photo image files.
            }, ...
       };
 
-Each photo key corresponds to key in `<ALBUM_PHOTOS_KEYS>` array in
-`albums.js` `<ALBUM_INDEX>` and photo key can have any integer value.
+Each photo key corresponds to key in `ALBUM_PHOTOS_KEYS` array in
+`albums.js` `ALBUM_INDEX` and photo key can have any integer value.
 Indexes should be unique, specific value does not matter.
 
 Path should be relative to `index.html` file
