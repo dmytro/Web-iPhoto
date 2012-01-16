@@ -1,5 +1,4 @@
-#!/opt/local/bin/ruby
-#!/usr/local/bin/ruby19
+#!/usr/bin/env ruby
 
 require 'json'
 require 'optparse'

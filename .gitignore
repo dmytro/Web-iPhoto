@@ -11,5 +11,7 @@ iPhotoMain.db
 index.html
 install.zip
 wiphoto/js/#photos.js#
+_site
+_exclude
 
 
