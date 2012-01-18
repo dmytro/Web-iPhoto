@@ -33,6 +33,10 @@ the iPhoto Library folder.
 Once HTML files created there's no need for server-side
 application. All is happening in the web browser only.
 
+See also
+--------
+
+See Github Web-iPhoto page: http://dmytro.github.com/Web-iPhoto
 
 Other uses
 -----------
